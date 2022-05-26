@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+using namespace std;
+# define ll long long
+# define rep(i,n) for(int i = 0; i < (n); ++i)
+# define ALL(obj) (obj).begin(), (obj).end()
+# define FAST ios::sync_with_stdio(false); cin.tie(nullptr);
+# define _GLIBCXX_DEBUG
+# define Pll pair<ll, ll>
+#define P pair<int,int>
+template<class T>bool chmax(T &a, const T &b) { if (a<b) { a=b; return 1; } return 0; }
+template<class T>bool chmin(T &a, const T &b) { if (b<a) { a=b; return 1; } return 0; }
+int INF = 1 << 30;
+
+int main(void){
+    FAST;
+    int n;
+    cin >> n;
+    string s;
+    cin >> s;
+    int x = 0;
+    int di = 0;
+    rep(i, n){
+        if(s[i] == '(') x++;
+        else{
+            x--;
+            if(x < 0) di = max(di,abs(x));
+        }
+    }
+    rep(i, di) s = '(' + s;
+    n += di;
+
+    int cnt = 0;
+    rep(i, n){
+        if(s[i] == '(') cnt++;
+        else cnt--; 
+    }
+    rep(i, cnt) s += ')';
+    cout << s << endl;
+    return 0;
+}
