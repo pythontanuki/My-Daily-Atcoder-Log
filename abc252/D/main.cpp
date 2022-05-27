@@ -59,8 +59,8 @@ template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } 
 
 string x,y,z;
 
- double match = 2;
- double mis_match = -INF;
+ double match = 5;
+ double mis_match = -15;
  double d = -1;
 
 double dp[400][400][400];
@@ -120,6 +120,23 @@ void align(int len_x,int len_y, int len_z) {
             }
         }
     }
+}
+
+tuple<int,int,int> check_max(int len_x, int len_y, int len_z) {
+    int mx = -INF;
+    int nlenx = -1;
+    int nleny = -1;
+    int nlenz = -1;
+    srep(i,0,len_x) srep(j,0,len_y) srep(k,0,len_z) {
+        if(dp[i][j][k] > mx) {
+            nlenx = i;
+            nleny = j;
+            nlenz = k;
+            mx = dp[i][j][k];
+        }
+    }
+    tuple<int,int,int> res = tie(nlenx, nleny, nlenz);
+    return res;
 }
 
 
@@ -200,14 +217,20 @@ vs trace_back(int len_x, int len_y, int len_z) {
 
 struct Solver {
   void Solve() {
-    // cout << setprecision(15) << endl;
     cin >> x >> y >> z;
     int len_x = sz(x);
     int len_y = sz(y);
     int len_z = sz(z);
     align(len_x,len_y,len_z);
-    auto f = trace_back(len_x,len_y,len_z);
-    rep(i,0,3) cout << f[i] << '\n';
+    auto f = check_max(len_x,len_y,len_z);
+    auto global_align = trace_back(len_x,len_y,len_z); 
+    int a, b, c;
+    tie(a,b,c) = f;
+    auto local_align = trace_back(a,b,c);
+    cout << "----------------------------- Global Alignment Result -------------------------" << endl;
+    rep(i,0,3) cout << global_align[i] << endl, cout << endl; //global align
+    cout << "----------------------------- Local Alignment Result -------------------------" << endl;
+    rep(i,0,3) cout << local_align[i] << endl, cout << endl; //local align
   } 
 };
 
