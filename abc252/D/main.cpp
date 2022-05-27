@@ -59,9 +59,9 @@ template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } 
 
 string x,y,z;
 
- double match = 5;
- double mis_match = -15;
- double d = -1;
+ double match = 1;
+ double mis_match = -INF;
+ double d = -5;
 
 double dp[400][400][400];
 int trace_table[400][400][400];

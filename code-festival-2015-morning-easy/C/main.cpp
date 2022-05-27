@@ -9,6 +9,8 @@ const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
 # define yes {puts("Yes"); return;}
@@ -137,40 +139,7 @@ C input_complex() {
 
 struct Solver {
   void Solve() {
-    int q;
-    CIN(q);
-    multiset<ll> s;
-    rep(qi,0,q) {
-        int c;
-        ll x;
-        CIN(c,x);
-        if(c == 1) s.insert(x);
-        else {
-            int k;
-            CIN(k);
-            if(c == 2) {
-                auto it = s.upper_bound(x);
-                bool fl = true;
-                while(k--) {
-                    if(it == s.begin()) {fl = false; break;}
-                    --it;
-                }
-                if(!fl) COUT(-1);
-                else COUT(*it);
-            }
-            else {
-                auto it = s.lower_bound(x);
-                bool fl = true;
-                --k;
-                while(k--) {
-                    if(it == s.end()) {fl = false; break;}
-                    ++it;
-                }
-                if(!fl || it == s.end()) COUT(-1);
-                else COUT(*it);
-            }
-        }
-    }
+    
   }
 };
 

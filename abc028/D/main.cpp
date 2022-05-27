@@ -137,40 +137,17 @@ C input_complex() {
 
 struct Solver {
   void Solve() {
-    int q;
-    CIN(q);
-    multiset<ll> s;
-    rep(qi,0,q) {
-        int c;
-        ll x;
-        CIN(c,x);
-        if(c == 1) s.insert(x);
-        else {
-            int k;
-            CIN(k);
-            if(c == 2) {
-                auto it = s.upper_bound(x);
-                bool fl = true;
-                while(k--) {
-                    if(it == s.begin()) {fl = false; break;}
-                    --it;
-                }
-                if(!fl) COUT(-1);
-                else COUT(*it);
-            }
-            else {
-                auto it = s.lower_bound(x);
-                bool fl = true;
-                --k;
-                while(k--) {
-                    if(it == s.end()) {fl = false; break;}
-                    ++it;
-                }
-                if(!fl || it == s.end()) COUT(-1);
-                else COUT(*it);
-            }
-        }
-    }
+    ll n, k;
+    CIN(n,k);
+    ll ans = 0;
+    ll tot = (n-k)*(k-1);
+    ans += 6*tot;
+    ans += 3*(k-1);
+    ans += 3*(n-k);
+    ans += 1;
+    ll total = binary_pow(n,3);
+    double d = (double)ans/(double)total;
+    printf("%.20lf\n",d);
   }
 };
 
