@@ -105,11 +105,11 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -135,38 +135,23 @@ C input_complex() {
     CIN(x,y);
     return C(x,y);
 }
-
-int n, n2;
-vvi a;
+int k, t;
+vi a;
 int ans;
-
-void dfs(vb s, int x) {
-    int pos = -1;
-    rep(i,0,n2) if(!s[i]) {pos = i; break;}
-    if(pos == -1) {
-        chmax(ans,x);
-        return;
-    }
-    s[pos] = true;
-    rep(i,0,n2) if(!s[i] && i != pos) {
-        s[i] = true;
-        dfs(s,x^a[pos][i]);
-        s[i] = false;
-    }
-}
-
 
 struct Solver {
   void Solve() {
-    CIN(n);
-    n2 = n*2;
-    a = vvi(n2,vi(n2));
-    rep(i,0,n2) rep(j,i+1,n2) {
-        CIN(a[i][j]);
-        a[j][i] = a[i][j];
+    CIN(k,t);
+    a = vi(t);
+    int tot = 0;
+    rep(i,0,t) {
+        CIN(a[i]);
+        tot += a[i];
     }
-    vb s(n2);
-    dfs(s,0);
+    S(rALL(a));
+    int mx = a[0]-1;
+    int ans = 0;
+    chmax(ans,mx-(tot-a[0]));
     COUT(ans);
   }
 };

@@ -139,7 +139,20 @@ C input_complex() {
 
 struct Solver {
   void Solve() {
-    
+    ll n,k,m,r;
+    CIN(n,k,m,r);
+    vl s(n);
+    rep(i,0,n-1) CIN(s[i]);
+    S(rALL(s));
+    ll tot = 0;
+    rep(i,0,k-1) tot += s[i];
+    ll bound = r*k;
+    //別に今受けている試験をK個採用して、単位が取れるなら試験を受ける必要がない
+    //1度目に出したコードだとこういうケースで落ちる
+    //2度目に出したコードでは、n == kのケースで落ちる
+    if(tot + s[k-1] >= bound) COUT(0);
+    else if(tot+m < bound) COUT(-1);
+    else COUT(bound-tot);
   }
 };
 
