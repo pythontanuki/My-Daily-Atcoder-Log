@@ -165,20 +165,25 @@ vector<pair<char, int>> res;
     return res;
 }
 
+
 struct Solver {
   void Solve() {
-    //解説AC EDPCとかDPはもっと練習する必要がある
-    int h, n;
-    CIN(h,n);
-    vi a(n), b(n);
-    vvl dp(n+1, vl(h+1,INF));
-    dp[0][0] = 0;
-    rep(i,0,n) CIN(a[i], b[i]);
-    rep(i,0,n) srep(j,0,h) {
-        chmin(dp[i+1][j], dp[i][j]);
-        chmin(dp[i+1][min(j+a[i],h)], dp[i+1][j]+b[i]);
+    const int M = 220000;
+    vi a(M);
+    vi s(M);
+    s[0] = 0;
+    int n, q;
+    CIN(n, q);
+    rep(i,0,q) {
+        int l, r;
+        CIN(l,r);
+        --l; --r;
+        a[l]++;
+        a[r+1]--;
     }
-    COUT(dp[n][h]);
+    rep(i,0,n) s[i+1] = s[i] + a[i];
+    srep(i,1,n) cout << s[i]%2;
+    cout << endl;
   }
 };
 
