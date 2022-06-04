@@ -165,30 +165,18 @@ vector<pair<char, int>> res;
     return res;
 }
 
+int sumOfAllPrimes(int n){
+    auto p = prime_table(n);
+    int sum = 0;
+    for(int i = 1; i < n; i++) {
+        if(p[i] == true) sum += i;
+    }
+    return sum;
+}
 
 struct Solver {
   void Solve() {
-    int n;
-    string s;
-    CIN(n,s);
-    int ans = 0;
-    rep(i,0,1000) {
-        string t;
-        int x = i;
-        rep(j,0,3) {
-            t += '0'+ x%10;
-            x /= 10;
-        }
-        int ti = 0;
-        rep(j,0,n) {
-            if(s[j] == t[ti]) {
-                ti++;
-                if(ti == 3) break;
-            }
-        }
-        if(ti == 3) ans++;
-    }
-    COUT(ans); 
+    
   }
 };
 

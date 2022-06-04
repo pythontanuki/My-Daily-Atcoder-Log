@@ -171,7 +171,8 @@ struct Solver {
   void Solve() {
     int n;
     CIN(n);
-    vi dp(n+1, INF);
+    vi dp(n+1, INF);//n円を支払うために必要な回数の最小値
+    //dp[]
     dp[0] = 0;
     srep(i,1,n) {
         int power = 1;
