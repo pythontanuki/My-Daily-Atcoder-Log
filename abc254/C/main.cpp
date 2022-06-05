@@ -177,7 +177,6 @@ struct Solver {
         mp[a[i]] += i;
     }
     S(ALL(a));
-
     rep(i,0,n) mp[a[i]] -= i;
     for(auto p : mp) if(p.se % k) ret("No");
     COUT("Yes");
