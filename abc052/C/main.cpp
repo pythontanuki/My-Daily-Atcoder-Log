@@ -4,7 +4,7 @@ using namespace atcoder;
 using namespace std;
 using mint = modint1000000007;
 using C = complex<double>;
-const int mod = 1000000007;
+const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
@@ -170,13 +170,15 @@ struct Solver {
   void Solve() {
     int n;
     CIN(n);
-    mint ans = 1;
-    slrep(i,1,n) {
+    vi d(1100);
+    srep(i,2,n) {
         auto f = factorize(i);
-        ll pre = 1;
-        rep(j,0,sz(f)) pre *= f[j].se + 1;
-        ans *= pre;
+        for(auto p : f)  {
+            d[p.fi] += p.se;
+        }
     }
+    mint ans = 1;
+    srep(i,2,n) ans *= d[i]+1;
     COUT(ans.val());
   }
 };
