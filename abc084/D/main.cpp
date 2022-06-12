@@ -9,8 +9,11 @@ const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -25,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -103,17 +105,18 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
         }
     }
 }
+
 
 vector<bool> prime_table(ll n) {
     vector<bool> prime(n+1,true);
@@ -127,6 +130,19 @@ vector<bool> prime_table(ll n) {
 }
 
 
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
 C input_complex() {
     double x, y;
     CIN(x,y);
@@ -134,21 +150,42 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    const ll M = 100010;
-    vb primes = prime_table(M);
-    vi a(M);
-    rep(i,0,M) if(primes[i]) if(i%2 && primes[(i+1)/2]) a[i] = 1;
-    vi s(M+1);
-    s[0] = 0;
-    rep(i,0,M) s[i+1] = s[i]+ a[i];
     int q;
     CIN(q);
-    rep(i,0,q) {
+    const int M = 100010;
+    vb f = prime_table(M);
+    vi s(M);
+    int now = 0;
+    rep(i,0,M-1) {
+        if(f[i] && i%2 && f[(i+1)/2]) now++;
+        s[i] = now;
+    }
+    rep(qi,0,q) {
         int l, r;
         CIN(l,r);
-        COUT(s[r+1] - s[l]);
+        COUT(s[r]-s[l-1]);
     }
   }
 };

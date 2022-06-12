@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -145,19 +149,40 @@ C input_complex() {
     return C(x,y);
 }
 
-struct Edge {ll node; ll cost;};
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+struct Edge {
+    ll node, cost;
+};
+
+ll n, q, k;
 vector<vector<Edge>> to;
 vl dist;
- 
-void dfs(int v, int p = -1) {
+
+void dfs(ll v, ll p = -1) {
     ll d = dist[v];
-    for(auto x : to[v]) {
-        ll u = x.node;
-        ll c = x.cost;
+    for(auto k : to[v]) {
+        ll u = k.node;
+        ll edge = k.cost;
         if(u == p) continue;
-        if(d+c > dist[u]) continue;
-        dist[u] = d+c;
+        dist[u] = d+edge;
         dfs(u,v);
     }
 }
@@ -165,27 +190,25 @@ void dfs(int v, int p = -1) {
 
 struct Solver {
   void Solve() {
-    ll n;
     CIN(n);
-    rsz(to,n);
+    to.resize(n);
+    dist.resize(n);
+    vi a(n-1), b(n-1), c(n-1);
     rep(i,0,n-1) {
-        ll a,b,c;
-        CIN(a,b,c);
-        --a; --b;
-        to[a].pb({b,c});
-        to[b].pb({a,c});
+        CIN(a[i],b[i],c[i]);
+        --a[i]; --b[i];
+        to[a[i]].push_back(Edge{b[i],c[i]});
+        to[b[i]].push_back(Edge{a[i],c[i]});
     }
-    dist = vl(n,LINF);
-    ll q,k;
-    CIN(q,k);
+    CIN(q, k);
     --k;
-    dist[k] = 0; 
+    dist[k] = 0;
     dfs(k);
     rep(qi,0,q) {
         ll x, y;
-        CIN(x,y);
+        CIN(x, y);
         --x; --y;
-        COUT(dist[x]+dist[y]);
+        COUT(dist[x] + dist[y]);
     }
   }
 };

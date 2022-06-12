@@ -133,9 +133,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -168,24 +174,28 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-    int sx, sy, tx, ty;
-    CIN(sx, sy, tx, ty);
-    int dx = tx - sx;
-    int dy = ty - sy;
-    string res = "";
-    rep(i,0,dy) res += 'U';
-    rep(i,0,dx) res += 'R';
-    rep(i,0,dy) res += 'D';
-    rep(i,0,dx) res += 'L';
-    res += 'L';
-    srep(i,0,dy) res += 'U';
-    srep(i,0,dx) res += 'R';
-    res += 'D';
-    res += 'R';
-    srep(i,0,dy) res += 'D';
-    srep(i,0,dx) res += 'L';
-    res += 'U';
-    COUT(res);
+    int sx, sy, gx, gy;
+    CIN(sx, sy, gx, gy);
+    string ans = "";
+    int dx = gx - sx;
+    int dy = gy - sy;
+    rep(i,0,dx) ans += 'R';
+    rep(i,0,dy) ans += 'U';
+    rep(i,0,dx) ans += 'L';
+    rep(i,0,dy) ans += 'D';
+    ans += 'D';
+    rep(i,0,dx) ans += 'R';
+    ans += 'R';
+    ans += 'U';
+    rep(i,0,dy) ans += 'U';
+    ans += 'L';
+    ans += 'U';
+    rep(i,0,dx) ans += 'L';
+    ans += 'L';
+    ans += 'D';
+    rep(i,0,dy) ans += 'D';
+    ans += 'R';
+    COUT(ans);
   }
 };
 

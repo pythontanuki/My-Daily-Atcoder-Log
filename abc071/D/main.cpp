@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -170,25 +174,40 @@ struct Solver {
   void Solve() {
     int n;
     CIN(n);
-    vs s(2);
-    CIN(s[0],s[1]);
-    int x = 0;
-    int p = -1;
-    mint ans = 1;
-    while(x < n) {
-        if(s[0][x] == s[1][x]) {
-            if(p == -1) ans *= 3;
-            else if(p == 0) ans *= 2;
-            else ans *= 1;
-            x++;
-            p = 0;
+    string s1, s2;
+    CIN(s1,s2);
+    string p = "";
+    int c = 0;
+    while(c < n) {
+        if(s1[c] == s2[c]) {
+            p += '1';
+            c++;
         }
         else {
-            if(p == -1) ans *= 6;
-            else if(p == 0) ans *= 2;
+            p += '2';
+            c += 2;
+        }
+    }
+    mint ans;
+    ll now = 0;
+    if(p[0] == '1') {
+        ans = 3;
+        now++;
+    }
+    else {
+        ans = 6;
+        now++;
+    }
+    while(now < sz(p)) {
+        if(p[now] == '1') {
+            if(p[now-1] == '1') ans *= 2;
+            else ans *= 1;
+            now++;
+        }
+        else {
+            if(p[now-1] == '1') ans *= 2;
             else ans *= 3;
-            x += 2;
-            p = 1;
+            now++;
         }
     }
     COUT(ans.val());

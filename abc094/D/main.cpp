@@ -13,7 +13,7 @@ const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
-# define rsz(x) (int)(x).resize()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -146,26 +150,44 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    ll k;
-    CIN(k);
-    vector<ll> a(k);
-    rep(i,0,k) CIN(a[i]);
-    S(rALL(a));
-    if(k == 2) {
+    ll n;
+    CIN(n);
+    vl a(n);
+    rep(i,0,n) CIN(a[i]);
+    if(n == 2) {
         COUT(a[0],a[1]);
         return;
     }
-    ll n = a[0];
-    ll half = n/2;
-    if(n%2) half++;
     S(ALL(a));
-    int u = lower_bound(ALL(a),half) - a.be();
-    ll r = 0;
-    if(abs(a[u-1]-half) >= abs(a[u]-half)) r = a[u];
-    else r = a[u-1];
-    COUT(n,r);
+    ll p = a[n-1];
+    ll q = p/2;
+    ll q2;
+    int ind = lower_bound(ALL(a),q) - a.begin();
+    if(abs(a[ind]-q) > abs(a[ind-1]-q)) q2 = ind-1;
+    else q2 = ind;
+    COUT(p,a[q2]);
   }
 };
 

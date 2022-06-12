@@ -12,7 +12,7 @@ const int MX = 200005;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
-# define sz(x) (int)(x).size()
+# define sz(x) (ll)(x).size()
 # define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
@@ -133,9 +133,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -168,11 +174,15 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-    //1つめのコードだと、適当にかいつまんだ時を網羅できていない
     ll n;
     CIN(n);
-    int ans = INF;
-    for(ll i = 1; i*i <= n; i++) if(n % i == 0) chmin(ans, max(sz(to_string(i)), sz(to_string(n/i))));
+    ll ans = INF;
+    for(ll i = 1; i*i <= n; i++) {
+        if(n % i) continue;
+        ll a = i;
+        ll b = n / i;
+        chmin(ans,max(sz(to_string(a)), sz(to_string(b))));
+    }
     COUT(ans);
   }
 };

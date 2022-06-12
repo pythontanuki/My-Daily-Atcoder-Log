@@ -9,8 +9,11 @@ const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -25,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -103,11 +105,11 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -128,46 +130,76 @@ vector<bool> prime_table(ll n) {
 }
 
 
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
 C input_complex() {
     double x, y;
     CIN(x,y);
     return C(x,y);
 }
 
-const int dx[4] = {-1,0,1,0};
-const int dy[4] = {0,-1,0,1};
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
 
 struct Solver {
   void Solve() {
     int h, w;
-    CIN(h,w);
+    CIN(h, w);
     vs G(h);
-    int cnt = 0;
-    rep(i,0,h) CIN(G[i]);
-    rep(i,0,h) rep(j,0,w) if(G[i][j] == '#') cnt++;
-    vvi dist(h,vi(w,INF));
+    rep(i,0,h)CIN(G[i]);
     queue<P> q;
+    vvi dist(h,vi(w, INF));
     auto push = [&](int i, int j, int d) {
         if(dist[i][j] != INF) return;
-        if(G[i][j] == '#') return;
         dist[i][j] = d;
         q.emplace(i,j);
     };
-    push(0,0,1);
+    push(0,0,0);
     while(sz(q)) {
         auto [i,j] = q.front(); q.pop();
         int d = dist[i][j];
-        rep(k,0,4) {
-            int ni = i+dx[k];
-            int nj = j+dy[k];
+        rep(dir,0,4) {
+            int ni = i + dx[dir];
+            int nj = j + dy[dir];
             if(ni < 0 || nj < 0 || ni >= h || nj >= w) continue;
-            if(dist[ni][nj] != INF) continue;
             if(G[ni][nj] == '#') continue;
+            if(dist[ni][nj] != INF) continue;
             push(ni,nj,d+1);
         }
     }
+    int cnt = 0;
+    rep(i,0,h)rep(j,0,w) if(G[i][j] == '#') cnt++;
     if(dist[h-1][w-1] == INF) COUT(-1);
-    else COUT(h*w-dist[h-1][w-1]-cnt);
+    else COUT(h*w-dist[h-1][w-1]-cnt-1);
   }
 };
 

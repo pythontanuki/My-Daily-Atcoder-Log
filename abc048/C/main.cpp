@@ -133,9 +133,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -169,21 +175,18 @@ vector<pair<char, int>> res;
 struct Solver {
   void Solve() {
     ll n, x;
-    CIN(n,x);
+    CIN(n, x);
     vl a(n);
     rep(i,0,n) CIN(a[i]);
     ll ans = 0;
-    vl s(n);
-    if(a[0] <= x) s[0] = a[0];
-    else {
-        s[0] = x;
-        ans += abs(s[0]-a[0]);
+    if(a[0] > x) {
+        ans += abs(a[0] - x);
+        a[0] = x;
     }
     rep(i,1,n) {
-        if(s[i-1] + a[i] <= x) s[i] = a[i];
-        else {
-            s[i] = x - s[i-1];
-            ans += abs(s[i]-a[i]);
+        if(a[i-1]+a[i] > x) {
+            ans += a[i]-(x-a[i-1]);
+            a[i] = x-a[i-1];
         }
     }
     COUT(ans);

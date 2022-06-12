@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -169,12 +173,12 @@ vector<pair<char, int>> res;
 struct Solver {
   void Solve() {
     int h, w;
-    CIN(h,w);
+    CIN(h, w);
     vvi c(10,vi(10));
     rep(i,0,10) rep(j,0,10) CIN(c[i][j]);
-    vvi a(h,vi(w));
-    rep(i,0,h)rep(j,0,w) CIN(a[i][j]); 
-    rep(k,0,10) rep(i,0,10) rep(j,0,10) chmin(c[i][j],c[i][k]+c[k][j]);        
+    vvi a(h, vi(w));
+    rep(i,0,h) rep(j,0,w) CIN(a[i][j]);
+    rep(k,0,10) rep(i,0,10) rep(j,0,10) chmin(c[i][j],c[i][k]+c[k][j]);
     ll ans = 0;
     rep(i,0,h)rep(j,0,w) if(a[i][j] >= 0) ans += c[a[i][j]][1];
     COUT(ans);

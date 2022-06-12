@@ -4,7 +4,7 @@ using namespace atcoder;
 using namespace std;
 using mint = modint1000000007;
 using C = complex<double>;
-const int mod = 998244353;
+const int mod = 1000000007;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
@@ -133,9 +133,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -170,15 +176,13 @@ struct Solver {
   void Solve() {
     int n;
     CIN(n);
-    vi d(1100);
-    srep(i,2,n) {
+    vector<int> cnt(1001);
+    srep(i,1,n) {
         auto f = factorize(i);
-        for(auto p : f)  {
-            d[p.fi] += p.se;
-        }
+        for(auto p : f) cnt[p.fi] += p.se;
     }
     mint ans = 1;
-    srep(i,2,n) ans *= d[i]+1;
+    srep(i,1,n) ans *= cnt[i]+1;
     COUT(ans.val());
   }
 };

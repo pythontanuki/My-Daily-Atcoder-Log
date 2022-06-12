@@ -13,7 +13,7 @@ const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
-# define rsz(x) (int)(x).resize()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -146,35 +150,55 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 string func(string s, string t) {
     vs res;
     string panic = "UNRESTORABLE";
-    int lens = sz(s);
-    int lent = sz(t);
-    srep(i,0,lens-lent) {
+    int slen = sz(s);
+    int tlen = sz(t);
+    srep(si,0,slen-tlen) {
         bool fl = true;
-        rep(j,0,lent) {
-            if(s[i+j] == '?') continue;
-            if(s[i+j] != t[j]) {fl = false; break;}
+        rep(ti,0,tlen) {
+            if(s[si+ti] == '?') continue;
+            if(s[si+ti] != t[ti]) {fl = false; break;}
         }
         if(fl) {
             string ans = "";
-            rep(k,0,lens) ans += 'a';
-            rep(i,0,lens) if(s[i] != '?') ans[i] = s[i];
-            rep(k,i,i+lent) ans[k] = t[k-i];
+            rep(i,0,slen) ans += 'a';
+            rep(i,0,slen) if(s[i] != '?') ans[i] = s[i];
+            rep(k,si,si+tlen) ans[k] = t[k-si];
             res.pb(ans);
         }
     }
-    if(!sz(res)) return panic;
+    if(sz(res) == 0) return panic;
     S(ALL(res));
     return res[0];
 }
 
 struct Solver {
   void Solve() {
-    string s2, t;
-    CIN(s2,t);
-    COUT(func(s2,t));
+    string s, t;
+    CIN(s, t);
+    COUT(func(s,t));
   }
 };
 

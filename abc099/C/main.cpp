@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -165,28 +169,30 @@ vector<pair<char, int>> res;
     return res;
 }
 
-int dp[100010];
+ll maxBoundary(ll x, ll n) {
+    ll num = 1;
+    while(num * n <= x) {
+        num *= n;
+    }
+    return num;
+}
+
+ll dfs(ll x) {
+    if(x == 0) return 0;
+    ll mx6 = maxBoundary(x,6);
+    ll mx9 = maxBoundary(x,9);
+    ll ans = LINF;
+    if(mx6 > 1) chmin(ans,dfs(x-mx6)+1);
+    if(mx9 > 1) chmin(ans,dfs(x-mx9)+1);
+    if(mx6 == 1) ans = x;
+    return ans;
+}
 
 struct Solver {
   void Solve() {
-    int n;
+    ll n;
     CIN(n);
-    vi dp(n+1, INF);//n円を支払うために必要な回数の最小値
-    //dp[]
-    dp[0] = 0;
-    srep(i,1,n) {
-        int power = 1;
-        while (power <= i) {
-            dp[i] = min(dp[i], 1 + dp[i - power]);
-            power *= 6;
-        }
-        power = 1;
-        while (power <= i) {
-            dp[i] = min(dp[i], 1 + dp[i - power]);
-            power *= 9;
-        }
-    }
-    COUT(dp[n]);
+    COUT(dfs(n));  
   }
 };
 
