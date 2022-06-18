@@ -13,7 +13,7 @@ const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
-# define rsz(x) (int)(x).resize()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -145,28 +149,41 @@ C input_complex() {
     return C(x,y);
 }
 
-ll len[55];
-ll pat[55];
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+ll tot[55], pat[55];
 
 ll f(ll n, ll x) {
-    if(n == 0) return 1LL;
-    if(x == 1) return 0LL;
-    else if(x <= len[n-1]+1) return f(n-1,x-1);
-    else if(x == len[n-1]+2) return pat[n-1]+1;
-    else if(x <= 2*len[n-1]+2) return pat[n-1]+1+f(n-1,x-2-len[n-1]);
-    else return 2*pat[n-1]+1;
+
 }
+
 
 struct Solver {
   void Solve() {
-    ll n, x;
-    CIN(n,x);
-    len[0] = 1;
+    int n, x;
+    CIN(n, x);
+    tot[0] = 1;
     pat[0] = 1;
-    rep(i,0,n) {
-        len[i+1] = len[i]*2+3;
-        pat[i+1] = pat[i]*2+1; 
-    }
+    srep(i,1,n) tot[i] = 2*tot[i-1]+3;
+    srep(i,1,n) pat[i] = 2*pat[i-1]+1;
     COUT(f(n,x));
   }
 };

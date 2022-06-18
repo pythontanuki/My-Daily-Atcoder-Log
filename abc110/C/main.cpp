@@ -13,7 +13,7 @@ const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
-# define rsz(x) (int)(x).resize()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -132,6 +130,19 @@ vector<bool> prime_table(ll n) {
 }
 
 
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
 C input_complex() {
     double x, y;
     CIN(x,y);
@@ -139,24 +150,42 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    string s,t;
+    string s, t;
     CIN(s,t);
-    //1対1の変換票が作れれば変換できる -> それ以外は無理
-    //これはswapと同じであることに気付けば良い
-    vi start(26,-1);
-    vi goal(26,-1);
-    rep(i,0,sz(s)) {
-        int a = s[i]- 'a';
-        int b = t[i] - 'a';
-        if(start[a] != -1 || goal[b] != -1) {
-            if(start[a] != b || goal[b] != a) ret("No");
-        }
+    if(sz(s) != sz(t)) ret("No");
+    int n = sz(s);
+    vi start(26,-1), goal(26,-1);
+    rep(i,0,n) {
+        int a = s[i]-'a';
+        int b = t[i]-'a';
+        if(start[a] != -1 && start[a] != b) ret("No");
+        if(goal[b] != -1 && goal[b] != a) ret("No");
         start[a] = b;
-        goal[b] = a;
+        goal[b] = a; 
     }
-    ret("Yes");
+    COUT("Yes");
   }
 };
 

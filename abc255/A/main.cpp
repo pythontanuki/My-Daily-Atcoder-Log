@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -174,11 +172,37 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-      int r,c;
-      CIN(r,c);
-      vvi a(2,vi(2));
-      rep(i,0,2)rep(j,0,2) CIN(a[i][j]);
-      COUT(a[r-1][c-1]);
+    int h, w;
+    CIN(h, w);
+    vvi a(h,vi(w));
+    rep(i,0,h)rep(j,0,w) CIN(a[i][j]);
+    vector<tuple<int,int,int,int>> ans;
+    //move to yoko
+    rep(i,0,h) {
+        rep(j,0,w-1) {
+            if(a[i][j]%2) {
+                a[i][j]--;
+                a[i][j+1]++;
+                ans.emplace_back(i,j,i,j+1);
+            }
+        }
+    }
+    //move to tate
+    rep(j,0,w) {
+        rep(i,0,h-1) {
+            if(a[i][j]%2) {
+                a[i][j]--;
+                a[i+1][j]++;
+                ans.emplace_back(i,j,i+1,j);
+            }
+        }
+    }
+    COUT(sz(ans));
+    for(auto p : ans) {
+        int w,x,y,z;
+        tie(w,x,y,z) = p;
+        COUT(w+1,x+1,y+1,z+1);
+    }
   }
 };
 

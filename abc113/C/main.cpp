@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -165,38 +169,38 @@ vector<pair<char, int>> res;
     return res;
 }
 
-string fillZero6(int num) {
-    string s = to_string(num);
-    while(sz(s) < 6) {
-        s = '0' + s;
-    }
+string fillzero(string s) {
+    int n = sz(s);
+    while(sz(s) != 6) s = '0' + s;
     return s;
 }
 
+
 struct Solver {
   void Solve() {
-    int n, m;
-    CIN(n,m);
-    map<int,map<int,int>> mp;
+    ll n,m;
+    CIN(n, m);
+    map<ll, vector<tuple<ll,string,ll>>> mp;
     rep(i,0,m) {
-        int p, y;
+        ll p, y;
         CIN(p,y);
-        mp[p][y] = i;
+        mp[p].emplace_back(y,fillzero(to_string(p)),i);
     }
-    vpi ans(m);
-    for(auto p : mp) {
-        int groupNum = p.fi;
-        auto mp2 = p.se;
+    map<ll,string> mp2; 
+    for(auto preferences : mp) {
+        auto x = preferences.se;
+        S(ALL(x));
         int cnt = 1;
-        for(auto p2 : mp2) {
-            int y = p2.fi;
-            int ind = p2.se;
-            ans[ind] = make_pair(groupNum, cnt);
+        for(auto r : x) {
+            ll year, index;
+            string s;
+            tie(year,s,index) = r;
+            s += fillzero(to_string(cnt));
+            mp2[index] = s;
             cnt++;
         }
     }
-    for(auto a : ans) COUT(fillZero6(a.fi) + fillZero6(a.se));
-    
+    for(auto m : mp2) COUT(m.se);
   }
 };
 
