@@ -3,12 +3,17 @@
 using namespace atcoder;
 using namespace std;
 using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -23,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -50,10 +54,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
-void scan() {}
-template <typename T, class... U> void scan(T &t, U &...u) { cin >> t; scan(u...); }
-void put() { cout << endl; }
-template <typename T, class... U, char sep = ' '> void put(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; put(u...); }
+void CIN() {}
+template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
+void COUT() { cout << endl; }
+template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
@@ -100,11 +104,12 @@ ll binary_pow(ll a, ll n) {
     return x;
 }
 
-ll pascal[500][500];
+
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -112,32 +117,99 @@ void pascal_init() {
     }
 }
 
-vl ans;
 
-void dfs(int keta, ll num) {
-    ans.pb(num);
-    if(keta == 10) return;
-    int last = num %10;
-    srep(i,-1,1) {
-        int j = last + i;
-        if(0 <= j && j <= 9) dfs(keta+1,num*10+j);
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
     }
+    return prime;
 }
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+vl lunlun;
+const ll M = 1e10;
+
+void dfs(ll x) {
+    lunlun.push_back(x);
+    if(x > M) return;
+    ll last = x%10;
+    ll d = last;
+    ll p = last;
+    if(last > 0) d--;
+    if(last < 9) p++;
+    ll nl = last + 10*x;
+    ll nd = d + 10*x;
+    ll np = p + 10*x;
+    lunlun.push_back(nl);
+    lunlun.push_back(nd);
+    lunlun.push_back(np);
+    dfs(nl);
+    dfs(nd);
+    dfs(np);
+}
+
 
 struct Solver {
   void Solve() {
-    int k;
-    scan(k);
-    rep(num,1,10) dfs(1,num);
-    S(ALL(ans));
-    put(ans[k-1]);
+    ll k;
+    CIN(k);
+    lrep(i,1,10) dfs(i);    
+    S(ALL(lunlun));
+    lunlun.erase(std::unique(lunlun.begin(), lunlun.end()), lunlun.end());
+    COUT(lunlun[k-1]);
   }
 };
 
 signed main(void) {
 /* This Program's Author python_tanuki */
     python_tanuki;
-    Solver solver;
-    solver.Solve();
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }

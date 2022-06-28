@@ -3,12 +3,17 @@
 using namespace atcoder;
 using namespace std;
 using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -23,7 +28,7 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
@@ -45,10 +50,14 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define dlrep(i, a, b) for(ll i = a; i >= b; --i)
 # define ALL(obj) (obj).begin(), (obj).end()
 # define rALL(obj) (obj).rbegin(), (obj).rend()
-# define snuke ios::sync_with_stdio(false); cin.tie(nullptr);
+# define python_tanuki ios::sync_with_stdio(false); cin.tie(nullptr);
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
+void CIN() {}
+template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
+void COUT() { cout << endl; }
+template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
@@ -88,20 +97,19 @@ vector<pair<ll,int>> factorize(ll n) {
 }
 
 ll binary_pow(ll a, ll n) {
-    ll res = 1;
-    while(n) {
-        res *=binary_pow(a, n/2);
-        if(n%2) res *= a;
-        n /= 2;
-    }
-    return res;
+    if(n == 0) return 1;
+    ll x = binary_pow(a,n/2);
+    x *= x;
+    if(n%2) x *= a;
+    return x;
 }
 
-ll pascal[500][500];
+
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 65) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -110,29 +118,107 @@ void pascal_init() {
 }
 
 
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    const int M = 100001;
     int n;
-    cin >> n;
+    CIN(n);
     vi t(n);
-    bitset<101010> dp;
-    dp[0] = 1;
+    rep(i,0,n) cin >> t[i];
     int tot = 0;
+    rep(i,0,n) tot += t[i];
+    //dp
+    //dp[i][j] i番目まで商品を作った時、時間をjにすることができるか
+    vector<vector<bool>> dp(n+1,vb(1e5+100));
+    dp[0][0] = true;
     rep(i,0,n) {
-        cin >> t[i];
-        tot += t[i];
-        dp |= dp << t[i];
+        rep(j,0,1e5+10) {
+            if(dp[i][j]) dp[i+1][j] = true;
+            if(j-t[i] >= 0) if(dp[i][j-t[i]]) dp[i+1][j] = true;
+        }
     }
     int ans = INF;
-    srep(i,0,M) if(dp[i]) chmin(ans,max(tot-i,i)); 
+    rep(i,0,1e5+100) if(dp[n][i]) chmin(ans,max(i,tot-i));
     cout << ans << endl;
   }
 };
 
 signed main(void) {
-    snuke;
-    Solver solver;
-    solver.Solve();
+/* This Program's Author python_tanuki */
+    python_tanuki;
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }

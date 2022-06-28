@@ -3,12 +3,17 @@
 using namespace atcoder;
 using namespace std;
 using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -23,7 +28,7 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
@@ -45,10 +50,14 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define dlrep(i, a, b) for(ll i = a; i >= b; --i)
 # define ALL(obj) (obj).begin(), (obj).end()
 # define rALL(obj) (obj).rbegin(), (obj).rend()
-# define snuke ios::sync_with_stdio(false); cin.tie(nullptr);
+# define python_tanuki ios::sync_with_stdio(false); cin.tie(nullptr);
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
+void CIN() {}
+template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
+void COUT() { cout << endl; }
+template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
@@ -88,20 +97,19 @@ vector<pair<ll,int>> factorize(ll n) {
 }
 
 ll binary_pow(ll a, ll n) {
-    ll res = 1;
-    while(n) {
-        res *=binary_pow(a, n/2);
-        if(n%2) res *= a;
-        n /= 2;
-    }
-    return res;
+    if(n == 0) return 1;
+    ll x = binary_pow(a,n/2);
+    x *= x;
+    if(n%2) x *= a;
+    return x;
 }
 
-ll pascal[500][500];
+
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 65) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -110,38 +118,95 @@ void pascal_init() {
 }
 
 
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
     int n,x,y;
-    cin >> n >> x >> y;
-    --x,--y;
-    vi ans(n);
+    CIN(n,x,y);
+    --x;--y;
+    vl ans(n);
     rep(sv,0,n) {
-        vi dist(n,INF);
         queue<int> q;
+        vi dist(n,INF);
         auto push = [&](int v, int d) {
             if(dist[v] != INF) return;
             q.push(v);
             dist[v] = d;
         };
         push(sv,0);
-        while(!q.empty()) {
-            int v = q.front(); q.pop();
-            int d = dist[v];
-            if(v-1 >= 0) push(v-1,d+1);
-            if(v+1 < n) push(v+1,d+1);
-            if(v == x) push(y,d+1);
-            if(v == y) push(x,d+1);
+        while(sz(q)) {
+            auto t = q.front();
+            int d = dist[t];
+            q.pop();
+            if(t-1 >= 0) push(t-1,d+1);
+            if(t+1 < n) push(t+1,d+1);
+            if(t == x) push(y,d+1);
+            if(t == y) push(x,d+1);
         }
         rep(i,0,n) ans[dist[i]]++;
     }
-    rep(i,1,n) cout << ans[i]/2 << endl;
+    rep(k,1,n) COUT(ans[k]/2);
   }
 };
 
 signed main(void) {
-    snuke;
-    Solver solver;
-    solver.Solve();
+/* This Program's Author python_tanuki */
+    python_tanuki;
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }

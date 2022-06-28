@@ -3,12 +3,17 @@
 using namespace atcoder;
 using namespace std;
 using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -23,7 +28,7 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
@@ -45,10 +50,14 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define dlrep(i, a, b) for(ll i = a; i >= b; --i)
 # define ALL(obj) (obj).begin(), (obj).end()
 # define rALL(obj) (obj).rbegin(), (obj).rend()
-# define snuke ios::sync_with_stdio(false); cin.tie(nullptr);
+# define python_tanuki ios::sync_with_stdio(false); cin.tie(nullptr);
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
+void CIN() {}
+template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
+void COUT() { cout << endl; }
+template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
@@ -95,11 +104,12 @@ ll binary_pow(ll a, ll n) {
     return x;
 }
 
-ll pascal[500][500];
+
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 65) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -108,27 +118,88 @@ void pascal_init() {
 }
 
 
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    ll n, k;
-    cin >> n >> k;
+    ll n,k;
+    CIN(n,k);
     vl a(n);
-    rep(i,0,n) cin >> a[i];
+    rep(i,0,n) CIN(a[i]);
     vl s(n+1);
     s[0] = 0;
-    rep(i,0,n) s[i+1] = s[i] + a[i];
     ll ans = 0;
-    srep(i,0,n) {
-        int u = lower_bound(ALL(s),s[i]+k) - s.begin();
-        ans += n-u+1;
+    rep(i,0,n) s[i+1] = s[i] + a[i];
+    int r = 0;
+    for(int l = 1; l <= n; l++) {
+        bool fl = true;
+        while(s[r]-s[l-1] < k) {
+            if(r >= n) {fl = false; break;}
+            r++; 
+        }
+        if(fl) ans += n-r+1;
     }
-    cout << ans << endl;
+    COUT(ans);
   }
 };
 
 signed main(void) {
-    snuke;
-    Solver solver;
-    solver.Solve();
+/* This Program's Author python_tanuki */
+    python_tanuki;
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }

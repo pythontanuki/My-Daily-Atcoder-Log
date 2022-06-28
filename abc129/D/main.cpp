@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -168,21 +172,23 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-    int h, w;
-    CIN(h, w);
-    vs G(h);
-    rep(i,0,h) CIN(G[i]);
-    vvi cnt(h, vi(w));
+    int h,w;
+    CIN(h,w);
+    vector<string> s(h);
+    rep(i,0,h) CIN(s[i]);
+    vvi cnt(h,vi(w));
+    //yoko
     rep(i,0,h) {
         vb used(w);
         rep(j,0,w) {
-            if(G[i][j] == '#') continue;
+            if(s[i][j] == '#') continue;
             if(used[j]) continue;
             int len = 0;
             while(j+len < w) {
-                if(G[i][j+len] == '#') break;
+                if(s[i][j+len] == '#') break;
                 len++;
             }
+
             rep(k,0,len) {
                 used[j+k] = true;
                 cnt[i][j+k] += len;
@@ -190,24 +196,26 @@ struct Solver {
         }
     }
 
+    //tate
     rep(j,0,w) {
         vb used(h);
         rep(i,0,h) {
-            if(G[i][j] == '#') continue;
+            if(s[i][j] == '#') continue;
             if(used[i]) continue;
             int len = 0;
             while(i+len < h) {
-                if(G[i+len][j] == '#') break;
+                if(s[i+len][j] == '#') break;
                 len++;
             }
+
             rep(k,0,len) {
                 used[i+k] = true;
                 cnt[i+k][j] += len;
             }
         }
     }
-    int ans = -1;
-    rep(i,0,h) rep(j,0,w) chmax(ans,cnt[i][j]-1);
+    int ans = -INF;
+    rep(i,0,h)rep(j,0,w) chmax(ans,cnt[i][j]-1);
     COUT(ans);
   }
 };

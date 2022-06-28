@@ -1,10 +1,19 @@
 #include <bits/stdc++.h>
+#include <atcoder/all>
+using namespace atcoder;
 using namespace std;
+using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
+int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -19,7 +28,7 @@ const int MX = 200005;
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
@@ -41,251 +50,160 @@ const int MX = 200005;
 # define dlrep(i, a, b) for(ll i = a; i >= b; --i)
 # define ALL(obj) (obj).begin(), (obj).end()
 # define rALL(obj) (obj).rbegin(), (obj).rend()
-# define taichi ios::sync_with_stdio(false); cin.tie(nullptr);
+# define python_tanuki ios::sync_with_stdio(false); cin.tie(nullptr);
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
-#define P pair<int,int>
+# define P pair<int,int>
 void CIN() {}
 template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
 void COUT() { cout << endl; }
 template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
-# define MAX_SEQ 1024
-# define M 1 //o o o
-# define IX 2 // o o x
-# define IY 3 //o x o
-# define IZ 4 // x o o
-# define DX 5 //o x x
-# define DY 6 //x o x
-# define DZ 7 //x x o
-# define F 8 // x x x 0
 
-string x,y,z;
-
- int match = 1;
- int mis_match = -1;
- int d = -5;
-
-int dp[400][400][400];
-int trace_table[400][400][400];
-
-int func(char c, char x) {
-    if(c == x) return match;
-    else  return mis_match;
+struct combination {
+   vector<mint> fact, ifact;
+   combination(int n):fact(n+1),ifact(n+1) {
+   assert(n < mod);
+   fact[0] = 1;
+   for (int i = 1; i <= n; ++i) fact[i] = fact[i-1]*i;
+   ifact[n] = fact[n].inv();
+   for (int i = n; i >= 1; --i) ifact[i-1] = ifact[i]*i;
 }
 
-void init() {
-    rep(i,0,400)rep(j,0,400)rep(k,0,400) dp[i][j][k] = -INF;
-}
+mint operator()(int n, int k) {
+   if (k < 0 || k > n) return 0;
+   return fact[n]*ifact[k]*ifact[n-k];
+  }
+};
 
-void align(int len_x,int len_y, int len_z) {
-    init();
-    dp[0][0][0] = 0;
-    srep(j,0,len_y)srep(k,0,len_z) {
-        dp[0][j][k] = 0;
-        trace_table[0][j][k] = IX;
-    }
-    srep(i,0,len_x)srep(k,0,len_z) {
-        dp[i][0][k] = 0;
-        trace_table[i][0][k] = IY;
-    }
-    srep(i,0,len_x)srep(j,0,len_y) {
-        dp[i][j][0] = 0;
-        trace_table[i][j][0] = IZ;
-    }
-    srep(i,1,len_x) {
-        srep(j,1,len_y) {
-            srep(k,1,len_z) {
-                if(dp[i][j][k] < dp[i-1][j-1][k-1]+func(x[i-1],y[j-1])+func(y[j-1],z[k-1])+func(x[i-1],z[k-1])) {
-                    chmax(dp[i][j][k], dp[i-1][j-1][k-1]+func(x[i-1],y[j-1])+func(y[j-1],z[k-1])+func(x[i-1],z[k-1]));
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = M;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-                if(dp[i][j][k] < dp[i-1][j-1][k]+func(x[i-1],y[j-1])+d+d) {
-                    chmax(dp[i][j][k],dp[i-1][j-1][k]+func(x[i-1],y[j-1])+d+d);
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = IZ;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-                if(dp[i][j][k] < dp[i-1][j][k-1]+d+func(x[i-1],z[k-1])+d) {
-                    chmax(dp[i][j][k],dp[i-1][j][k-1]+d+func(x[i-1],z[k-1])+d);
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = IY;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-                if(dp[i][j][k] < dp[i][j-1][k-1]+d+d+func(y[j-1],z[k-1])) {
-                    chmax(dp[i][j][k],dp[i][j-1][k-1]+d+d+func(y[j-1],z[k-1]));
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = IX;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-                if(dp[i][j][k] < dp[i-1][j][k]+d+d) {
-                    chmax(dp[i][j][k],dp[i-1][j][k]+d+d);
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = DX;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-                if(dp[i][j][k] < dp[i][j-1][k]+d+d) {
-                    chmax(dp[i][j][k],dp[i][j-1][k]+d+d);
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = DY;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-                if(dp[i][j][k] < dp[i][j][k-1]+d+d) {
-                    chmax(dp[i][j][k],dp[i][j][k-1]+d+d);
-                    chmax(dp[i][j][k],0);
-                    trace_table[i][j][k] = DZ;
-                    if(dp[i][j][k] == 0) trace_table[i][j][k] = F;
-                }
-            }
-        }
-    }
-}
+ll gcd (ll x, ll y) {return x ? gcd(y%x, x) : y;}
+
+ll lcm (ll x, ll y) {return x/gcd(x,y)*y;}
 
 
-vs trace_back(int len_x, int len_y, int len_z) {
-    int x_cur = len_x;
-    int y_cur = len_y;
-    int z_cur = len_z;
-    int pointer = 0;
-    string rev_x = "";
-    string rev_y = "";
-    string rev_z = "";
-    while(x_cur > 0 && y_cur > 0 && z_cur > 0) {
-        if(trace_table[x_cur][y_cur][z_cur] == M) {
-            rev_x += x[x_cur-1];
-            rev_y += y[y_cur-1];
-            rev_z += z[z_cur-1];
-            --x_cur;
-            --y_cur;
-            --z_cur;
-            ++pointer;
-        }
-        else if(trace_table[x_cur][y_cur][z_cur] == IX) {
-            rev_x += '-';
-            rev_y += y[y_cur-1];
-            rev_z += z[z_cur-1];
-            --y_cur;
-            --z_cur;
-            ++pointer;
-        }
-        else if(trace_table[x_cur][y_cur][z_cur] == IY) {
-            rev_x += x[x_cur-1];
-            rev_y += '-';
-            rev_z += z[z_cur-1];
-            --x_cur;
-            --z_cur;
-            ++pointer;
-        }
-        else if(trace_table[x_cur][y_cur][z_cur] == IZ) {
-            rev_x += x[x_cur-1];
-            rev_y += y[y_cur-1];
-            rev_z += '-';
-            --x_cur;
-            --y_cur;
-            ++pointer;
-        }
-        else if(trace_table[x_cur][y_cur][z_cur] == DX) {
-            rev_x += x[x_cur-1];
-            rev_y += '-';
-            rev_z += '-';
-            --x_cur;
-            ++pointer;
-        }
-        else if(trace_table[x_cur][y_cur][z_cur] == DY) {
-            rev_x += '-';
-            rev_y += y[y_cur-1];
-            rev_z += '-';
-            --y_cur;
-            ++pointer;
-        }
-        else if(trace_table[x_cur][y_cur][z_cur] == DZ) {
-            rev_x += '-';
-            rev_y += '-';
-            rev_z += z[z_cur-1];
-            --z_cur;
-            ++pointer;
-        }
-        else {
-            rev_x += '-';
-            rev_y += '-';
-            rev_z += '-';
-            --x_cur;
-            --y_cur;
-            --z_cur;
+vector<pair<ll,int>> factorize(ll n) {
+    vector<pair<ll,int>> res;
+    for(ll i = 2; i*i <= n; ++i) {
+        if(n%i) continue;
+        res.eb(i,0);
+        while(n%i == 0) {
+            n /= i;
+            res.back().se++;
         }
     }
-    vs res;
-    reverse(ALL(rev_x));
-    reverse(ALL(rev_y));
-    reverse(ALL(rev_z));
-    res.eb(rev_x);
-    res.eb(rev_y);
-    res.eb(rev_z);
+    if(n != 1) res.eb(n,1);
     return res;
 }
 
-string judgeConsensus(string s) {
-    int pos = 0;
-    int lastpos = 0;
-    int startpos = 0;
-    int goalpos = 0;
-    int mxlen = -1;
-    while(pos < sz(s)) {
-        if(s[pos] == '-') {
-            pos++;
-            continue;
-        }
-        lastpos = pos;
-        while(s[pos] != '-') pos++;
-        if(mxlen < pos-lastpos+1) {
-            mxlen = pos-lastpos+1;
-            startpos = lastpos;
-            goalpos = pos;
+ll binary_pow(ll a, ll n) {
+    if(n == 0) return 1;
+    ll x = binary_pow(a,n/2);
+    x *= x;
+    if(n%2) x *= a;
+    return x;
+}
+
+
+ll pascal[4500][4500];
+
+void pascal_init() {
+    pascal[0][0] = 1;
+    rep(i, 0, 4400) {
+        rep(j, 0, i+1) {
+            pascal[i+1][j] += pascal[i][j];
+            pascal[i+1][j+1] += pascal[i][j];
         }
     }
-    string ans = "";
-    rep(i,startpos, goalpos) ans += s[i];
-    return ans;
+}
+
+
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+ll choose3 (ll x) {
+    return x*(x-1)*(x-2)/6;
+}
+
+ll choose2(ll x) {
+    return x*(x-1)/2;
 }
 
 struct Solver {
   void Solve() {
-    CIN(x,y,z);
-    int len_x = sz(x);
-    int len_y = sz(y);
-    int len_z = sz(z);
-    align(len_x,len_y,len_z);
-    ll mx = -INF;
-    int lx, ly, lz;
-    drep(i,len_x,0) {
-        drep(j,len_y,0) {
-            drep(k,len_z,0) {
-                if(dp[i][j][k] >= mx) {
-                    lx = i;
-                    ly = j;
-                    lz = k;
-                    mx = dp[i][j][k];
-                }
-            }
-        }
+    ll n;
+    CIN(n);
+    vl a(n);
+    map<ll,ll> mp;
+    rep(i,0,n) {
+        CIN(a[i]);
+        mp[a[i]]++;
     }
-    COUT(lx,ly,lz);
-    auto f = trace_back(lx,ly,lz);
-    rep(i,0,3) COUT(judgeConsensus(f[i]));
-  } 
+    ll ans = n*(n-1)*(n-2)/6;
+    ll res = 0;
+    for(auto p : mp) {
+        if(p.se >= 2) res += (n-p.se) * choose2(p.se);
+        if(p.se >= 3) res += choose3(p.se); 
+    }
+    COUT(ans-res);
+  }
 };
 
 signed main(void) {
-    /* This Program's Author is taichi araki */
-    taichi;
-    Solver solver;
-    solver.Solve();
+/* This Program's Author python_tanuki */
+    python_tanuki;
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }
-
-
-
-

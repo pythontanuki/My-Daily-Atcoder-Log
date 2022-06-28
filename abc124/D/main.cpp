@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -44,12 +42,12 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define pob pop_back
 # define S sort
 # define N next_permutation
-# define rep(i, s, b) for(int i = s; i < b; i++)
-# define lrep(i, s, b) for(ll i = s; i < b; i++)
-# define srep(i, s, b) for(int i = s; i <= b; ++i)
-# define slrep(i, s, b) for(ll i = s; i <= b; ++i)
-# define drep(i, s, b) for(int i = s; i >= b; --i)
-# define dlrep(i, s, b) for(ll i = s; i >= b; --i)
+# define rep(i, a, b) for(int i = a; i < b; i++)
+# define lrep(i, a, b) for(ll i = a; i < b; i++)
+# define srep(i, a, b) for(int i = a; i <= b; ++i)
+# define slrep(i, a, b) for(ll i = a; i <= b; ++i)
+# define drep(i, a, b) for(int i = a; i >= b; --i)
+# define dlrep(i, a, b) for(ll i = a; i >= b; --i)
 # define ALL(obj) (obj).begin(), (obj).end()
 # define rALL(obj) (obj).rbegin(), (obj).rend()
 # define python_tanuki ios::sync_with_stdio(false); cin.tie(nullptr);
@@ -60,8 +58,8 @@ void CIN() {}
 template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
 void COUT() { cout << endl; }
 template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
-template<class T>bool chmax(T &s, const T &b) { if (s < b) { s = b; return 1; } return 0; }
-template<class T>bool chmin(T &s, const T &b) { if (b < s) { s = b; return 1; } return 0; }
+template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
+template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
 struct combination {
    vector<mint> fact, ifact;
@@ -98,11 +96,11 @@ vector<pair<ll,int>> factorize(ll n) {
     return res;
 }
 
-ll binary_pow(ll s, ll n) {
+ll binary_pow(ll a, ll n) {
     if(n == 0) return 1;
-    ll x = binary_pow(s,n/2);
+    ll x = binary_pow(a,n/2);
     x *= x;
-    if(n%2) x *= s;
+    if(n%2) x *= a;
     return x;
 }
 
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -147,50 +151,47 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-	int n = s.length();
- 
-	vector<pair<char, int>> res;
-	char pre = s[0];
-	int cnt = 1;
-	rep(i, 1, n) {
-		if (pre != s[i]) {
-			res.push_back({ pre, cnt });
-			pre = s[i];
-			cnt = 1;
-		}
-		else cnt++;
-	}
- 
-	res.push_back({ pre, cnt });
-	return res;
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
 }
 
 
 struct Solver {
   void Solve() {
-    ll n,k;
+    //解説AC
+    int n, k;
     CIN(n,k);
     string s;
     CIN(s);
-    auto d = runLengthEncoding(s);
-    int si = sz(d);
-    // rep(i,0,sz(d)) COUT(d[i].fi," ",d[i].se);
-    // rep(i,0,sz(a)) COUT(a[i]);
-   ll ans = -LINF;
-   ll sum = 0;
-   ll zcnt = 0;
-   ll l = 0;
-   //search section
-    rep(r,0,sz(d)) {
-        sum += d[r].se;
-        if(d[r].fi == '0') zcnt++;
-
-        while(k < zcnt) {
-            sum -= d[l].se;
-            if(d[l].fi == '0') zcnt--;
-            l++;
+    auto blocks = runLengthEncoding(s);
+    int bsi = sz(blocks);
+    int sm = 0;
+    int cnt = 0;
+    int L = 0;
+    int ans = -INF;
+    rep(R,0,bsi) {
+        sm += blocks[R].se;
+        if(blocks[R].fi == '0') cnt++;
+        while(k < cnt) {
+            sm -= blocks[L].se;
+            if(blocks[L].fi == '0') cnt--;
+            L++;
         }
-        chmax(ans,sum);
+        chmax(ans,sm);
     }
     COUT(ans);
   }

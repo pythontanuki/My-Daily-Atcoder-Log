@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -174,14 +172,14 @@ vector<pair<char, int>> res;
 vvi to;
 vi l, r;
 
-void dfs(int v, int &x, int p = -1) {
-  l[v] = x;
-  for(auto u : to[v]) {
-    if(u == p) continue;
-    dfs(u,x,v);
-  }
-  if(sz(to[v]) == 1 && p != -1) x++;
-  r[v] = x-1;
+void dfs(int v, int &x ,int p = -1) {
+    l[v] = x;
+    for(auto u : to[v]) {
+        if(u == p) continue;
+        dfs(u,x,v);
+    }
+    if(sz(to[v]) == 1 && p != -1)x++;  //leaf
+    r[v] = x-1;
 }
 
 
@@ -189,19 +187,19 @@ struct Solver {
   void Solve() {
     int n;
     CIN(n);
-    to.resize(n);
-    l.resize(n);
-    r.resize(n);
+    rsz(to,n);
+    rsz(l,n);
+    rsz(r,n);
     rep(i,0,n-1) {
-      int u, v;
-      CIN(u,v);
-      --u;--v;
-      to[u].pb(v);
-      to[v].pb(u);
+        int u,v;
+        CIN(u,v);
+        --u;--v;
+        to[u].push_back(v);
+        to[v].push_back(u);
     }
     int x = 1;
-    dfs(0,x);
-    rep(i,0,n) printf("%d %d\n",l[i],r[i]);
+    dfs(0,x); 
+    rep(v,0,n)cout << l[v] << " " << r[v] << " "<< endl; 
   }
 };
 

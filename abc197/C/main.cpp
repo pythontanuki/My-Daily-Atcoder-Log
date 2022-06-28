@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -148,7 +152,6 @@ C input_complex() {
 
 vector<pair<char, int>> runLengthEncoding(string s) {
 int n = s.length();
-
 vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
@@ -166,19 +169,38 @@ vector<pair<char, int>> res;
 }
 
 
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
     int n;
     CIN(n);
-    vi a(n);
+    vector<int> a(n);
     rep(i,0,n) CIN(a[i]);
-    int ans = 1 << 30;
-    rep(s,0,1 << (n-1)) {
-        int XOR = 0;
+    int ans = 1 << 30 ;
+    rep(bit,1,1 << n) {
         int OR = 0;
+        int XOR = 0;
         rep(i,0,n) {
             OR |= a[i];
-            if(s >> i & 1) {
+            if(bit >> i & 1) {
                 XOR ^= OR;
                 OR = 0;
             }

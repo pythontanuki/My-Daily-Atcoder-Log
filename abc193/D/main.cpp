@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -165,39 +169,44 @@ vector<pair<char, int>> res;
     return res;
 }
 
+
 ll score(string s) {
+    vector<int> cnt(10);
+    rep(i,0,5) cnt[s[i]-'0']++;
     ll res = 0;
-    vl card(11);
-    rep(i,0,sz(s)) card[s[i]-'0']++;
-    rep(i,1,10) res += i*binary_pow(10,card[i]);
+    rep(i,1,10) res += i * binary_pow(10,cnt[i]);
     return res;
 }
 
+
 struct Solver {
   void Solve() {
-    int k;
-    string s,t;
+    ll k;
+    string s, t;
     CIN(k,s,t);
-    vi cnt(10,k);
+    vector<ll> card(10,k);
     rep(i,0,4) {
-        cnt[s[i]-'0']--;
-        cnt[t[i]-'0']--;
+        card[s[i]-'0']--;
+        card[t[i]-'0']--;
     }
-    ll ans = 0;
-    rep(i,1,10) {
-        rep(j,1,10) {
-            s[4] = '0' + i;
-            t[4] = '0' + j;
-            if(score(s) > score(t)) {
-                if(i == j) ans += (ll)cnt[i] * (cnt[i]-1);
-                else ans += (ll)cnt[i] * cnt[j];
-            }
+    ll nokori = 0;
+    rep(i,1,10) nokori += card[i];
+    ll tot = nokori * (nokori-1);
+
+    ll pre = 0;
+    rep(si,1,10) {
+        if(card[si] == 0) continue;
+        s[4] = '0'+si;
+        card[si]--;
+        rep(ti,1,10) {
+            if(card[ti] == 0) continue;
+            t[4] = '0'+ti;
+            if(score(s) > score(t)) pre += (ll)(card[si]+1)*card[ti];
         }
+        card[si]++;
     }
-    ll p = 0;
-    rep(i,1,10) p += cnt[i];
-    ll tot = p * (p-1);
-    printf("%.15lf\n",(double)ans/tot);
+    double ans = (double)pre / tot;
+    printf("%.10lf\n", ans);
   }
 };
 

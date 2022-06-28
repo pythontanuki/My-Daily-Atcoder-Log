@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -176,19 +174,20 @@ struct Solver {
   void Solve() {
     ll x,a,d,n;
     CIN(x,a,d,n);
-    ll s = ((x-a)/d-1)*d+a;
-    ll k = (x-a)/d*d+a;
-    ll t = ((x-a)/d+1)*d+a;
-    ll mx = a + (n-1)*d;
-    if(s > mx && k > mx && t > mx) {
-        ll h = max(a,mx);
-        COUT(abs(x-h));
-        return;
+    if(d == 0) {COUT(abs(x-a)); return;}
+    if(d < 0) {
+        a = a+d*(n-1);
+        d *= -1;
     }
-    ll ds = s-x;
-    ll dk = k-x;
-    ll dt = t-x;
-    COUT(min(min(abs(ds),abs(dk)),abs(dt)));
+    ll i = (x-a)/d;
+    auto f = [&](ll i) {
+        if(i <= 0) i = 0;
+        if(i >= n) i = n-1;
+        return a+d*i;
+    };
+    ll ans = abs(x - f(i));
+    chmin(ans,abs(x-f(i+1)));
+    COUT(ans);
   }
 };
 

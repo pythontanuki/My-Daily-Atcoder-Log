@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -168,16 +172,18 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
+    //解説AC
+    //bitのflipであると考えると、プラスとマイナスの合計の偶奇は変わらないことに気づく
     int n;
     CIN(n);
     vl a(n);
-    ll ans = 0;
     int neg = 0;
-    ll mi = LINF;
+    ll mi = INF;
+    ll ans = 0;
     rep(i,0,n) {
         CIN(a[i]);
-        if(a[i] < 0) neg++;
         ans += abs(a[i]);
+        if(a[i] < 0) neg++;
         chmin(mi,abs(a[i]));
     }
     if(neg % 2) ans -= 2*mi;

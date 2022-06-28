@@ -172,19 +172,25 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-    //   const int M = 100005;
     int n;
     CIN(n);
-    vl a(n);
+    vi a(n);
     rep(i,0,n) CIN(a[i]);
-    vl gl(n), gr(n);
-    gl[0] = a[0];
-    rep(i,1,n) gl[i] = gcd(gl[i-1],a[i]);
-    gr[n-1] = a[n-1];
-    drep(i,n-1,1) gr[i-1] = gcd(gr[i],a[i-1]);
-    ll ans = -LINF;
+    vi gl, gr;
+    int g = 0;
     rep(i,0,n) {
-        ll g = 0;
+        g = gcd(g,a[i]);
+        gl.push_back(g);
+    }
+    g = 0;
+    drep(i,n-1,0) {
+        g = gcd(g, a[i]);
+        gr.push_back(g);
+    }
+    reverse(ALL(gr));
+    int ans = -INF;
+    rep(i,0,n) {
+        g = 0;
         if(i-1 >= 0) g = gcd(g,gl[i-1]);
         if(i+1 < n) g = gcd(g,gr[i+1]);
         chmax(ans,g);

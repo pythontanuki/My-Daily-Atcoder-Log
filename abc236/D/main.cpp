@@ -13,6 +13,7 @@ const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -27,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -105,11 +105,11 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -130,40 +130,80 @@ vector<bool> prime_table(ll n) {
 }
 
 
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
 C input_complex() {
     double x, y;
     CIN(x,y);
     return C(x,y);
 }
 
-int n, n2;
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+int n,n2,ans;
 vvi a;
-int ans;
 
 void dfs(vb s, int x) {
-    int pos = -1;
-    rep(i,0,n2) if(!s[i]) {pos = i; break;}
-    if(pos == -1) {
+    int t = -1;
+    rep(i,0,n2) {
+        if(!s[i]) {
+            t = i;
+            break;
+        }
+    }
+    if(t == -1) {
         chmax(ans,x);
         return;
     }
-    s[pos] = true;
-    rep(i,0,n2) if(!s[i] && i != pos) {
-        s[i] = true;
-        dfs(s,x^a[pos][i]);
-        s[i] = false;
+    s[t] = true;
+    rep(i,0,n2) {
+        if(i != t && !s[i]) {
+            s[i] = true;
+            dfs(s,x^a[t][i]);
+            s[i] = false;
+        }
     }
 }
-
 
 struct Solver {
   void Solve() {
     CIN(n);
     n2 = n*2;
     a = vvi(n2,vi(n2));
-    rep(i,0,n2) rep(j,i+1,n2) {
-        CIN(a[i][j]);
-        a[j][i] = a[i][j];
+    rep(i,0,n2) {
+        rep(j,i+1,n2) {
+            CIN(a[i][j]);
+            a[j][i] = a[i][j];
+        }
     }
     vb s(n2);
     dfs(s,0);

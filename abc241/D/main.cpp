@@ -9,8 +9,11 @@ const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -25,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -103,11 +105,11 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -128,10 +130,43 @@ vector<bool> prime_table(ll n) {
 }
 
 
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
 C input_complex() {
     double x, y;
     CIN(x,y);
     return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
 }
 
 
@@ -140,34 +175,35 @@ struct Solver {
     int q;
     CIN(q);
     multiset<ll> s;
-    rep(qi,0,q) {
-        int c;
-        ll x;
-        CIN(c,x);
-        if(c == 1) s.insert(x);
+    //beginは値を持ち,endは値を持たないことに注意
+    while(q--) {
+        ll type, x;
+        CIN(type,x);
+        if(type == 1) s.insert(x);
         else {
             int k;
             CIN(k);
-            if(c == 2) {
-                auto it = s.upper_bound(x);
+            if(type == 2) {
+                auto itr = s.upper_bound(x);
                 bool fl = true;
                 while(k--) {
-                    if(it == s.begin()) {fl = false; break;}
-                    --it;
+                    if(itr == s.begin()) {fl = false; break;}
+                    itr--;
                 }
                 if(!fl) COUT(-1);
-                else COUT(*it);
+                else COUT(*itr);
             }
+
             else {
-                auto it = s.lower_bound(x);
+                auto itr = s.lower_bound(x);
                 bool fl = true;
-                --k;
+                k--;
                 while(k--) {
-                    if(it == s.end()) {fl = false; break;}
-                    ++it;
+                    if(itr == s.end()) {fl = false; break;}
+                    itr++;
                 }
-                if(!fl || it == s.end()) COUT(-1);
-                else COUT(*it);
+                if(!fl || itr == s.end()) COUT(-1);
+                else COUT(*itr);
             }
         }
     }

@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -165,20 +169,20 @@ vector<pair<char, int>> res;
     return res;
 }
 
+
 struct Solver {
   void Solve() {
-    //解説AC EDPCとかDPはもっと練習する必要がある
     int h, n;
     CIN(h,n);
     vi a(n), b(n);
-    vvl dp(n+1, vl(h+1,INF));
-    dp[0][0] = 0;
     rep(i,0,n) CIN(a[i], b[i]);
-    rep(i,0,n) srep(j,0,h) {
-        chmin(dp[i+1][j], dp[i][j]);
-        chmin(dp[i+1][min(j+a[i],h)], dp[i+1][j]+b[i]);
-    }
-    COUT(dp[n][h]);
+    //dp
+    //モンスターの体力をiにするための魔力の最小値
+    //dp[i] = dp[i+a[j]] + b[j] --> dp[i-a[j]] = dp[i] + b[j]
+    vector<int> dp(h+1, INF);
+    dp[h] = 0;
+    drep(i,h,0) rep(j,0,n) chmin(dp[max(0, i-a[j])],dp[i] + b[j]);
+    COUT(dp[0]);
   }
 };
 

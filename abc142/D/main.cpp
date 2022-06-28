@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -168,12 +172,19 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-    ll n, k;
-    CIN(n, k);
-    ll g = gcd(n,k);
-    if(g == 1) ret(1);
-    auto f = factorize(g);
-    COUT(sz(f)+1);
+    ll a, b;
+    CIN(a,b);
+    ll g = gcd(a,b);
+    auto d = divisor(g);
+    int ans = 0;
+    for(auto x : d) {
+        bool fl = true;
+        for(ll i = 2; i*i <= x; i++) {
+            if(x%i == 0) {fl = false; break;}
+        }
+        if(fl) ans++;
+    }
+    COUT(ans);
   }
 };
 

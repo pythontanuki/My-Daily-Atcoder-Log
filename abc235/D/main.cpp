@@ -3,12 +3,17 @@
 using namespace atcoder;
 using namespace std;
 using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -23,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -50,10 +54,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
-void scan() {}
-template <typename T, class... U> void scan(T &t, U &...u) { cin >> t; scan(u...); }
-void put() { cout << endl; }
-template <typename T, class... U, char sep = ' '> void put(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; put(u...); }
+void CIN() {}
+template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
+void COUT() { cout << endl; }
+template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
@@ -100,20 +104,71 @@ ll binary_pow(ll a, ll n) {
     return x;
 }
 
-ll pascal[500][500];
+
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
         }
     }
 }
-ll a, n;
-map<ll,int> ans;
-const ll M = 999999;
+
+
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
 
 ll func(ll n) {
     string s = to_string(n);
@@ -124,28 +179,37 @@ ll func(ll n) {
     return resl;
 }
 
-void dfs(ll t, int cnt) {
-   if(t > M) return;
-   if(ans[t] && ans[t] <= cnt+1) return;
-   if(!ans[t]) ans[t] = cnt+1;
-   if(ans[t] > cnt+1) ans[t] = cnt+1;
-   dfs(t*a,ans[t]);
-   if(t % 10 && t > 10) dfs(func(t),ans[t]);
-}
-
 struct Solver {
   void Solve() {
-    scan(a,n);
-    dfs(1,0);
-    if(ans[n]) put(ans[n]-1);
-    else put(-1);
+    int a, n;
+    CIN(a,n);
+    int mx = 1e7;
+    queue<int> q;
+    vector<int> dist(mx,INF);
+    auto push = [&](int v, int d) {
+        if(dist[v] != INF) return;
+        dist[v] = d;
+        q.push(v);
+    };
+    push(1,0);
+    while(sz(q)) {
+        int t = q.front(); q.pop();
+        int d = dist[t];
+        if((ll)t*a < mx) push(t*a, d+1);
+        if(t%10 && t >= 10) if(func(t) < mx) push(func(t),d+1);
+    }
+    if(dist[n] == INF) cout << -1 << endl;
+    else COUT(dist[n]);
   }
 };
 
 signed main(void) {
 /* This Program's Author python_tanuki */
     python_tanuki;
-    Solver solver;
-    solver.Solve();
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }

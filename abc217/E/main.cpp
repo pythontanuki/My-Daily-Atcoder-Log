@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +131,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -168,11 +172,11 @@ vector<pair<char, int>> res;
 
 struct Solver {
   void Solve() {
-    int Q;
-    CIN(Q);
-    priority_queue<ll,vl,greater<>> p;
+    int tt;
+    CIN(tt);
     queue<ll> q;
-    rep(qi,0,Q) {
+    priority_queue<ll, vector<ll>, greater<>> pq;
+    while(tt--) {
       int type;
       CIN(type);
       if(type == 1) {
@@ -180,20 +184,22 @@ struct Solver {
         CIN(x);
         q.push(x);
       }
+
       else if(type == 2) {
-        if(sz(p)) {
-          COUT(p.top());
-          p.pop();
+        if(sz(pq) == 0) {
+          ll v = q.front(); q.pop();
+          COUT(v);
         }
         else {
-          COUT(q.front());
-          q.pop();
+          ll v = pq.top(); pq.pop();
+          COUT(v);
         }
       }
+
       else {
         while(sz(q)) {
-          p.push(q.front());
-          q.pop();
+          ll v = q.front(); q.pop();
+          pq.push(v);
         }
       }
     }

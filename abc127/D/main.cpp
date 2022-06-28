@@ -9,8 +9,11 @@ const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -25,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -103,16 +105,41 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
         }
     }
+}
+
+
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -123,45 +150,29 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    int n, m;
-    CIN(n,m);
-    vl a(n);
-    ll tot = 0;
-    for(auto &p : a) {
-        CIN(p);
-        tot += p;
-    }
-    S(ALL(a));
-    vl s(n+1);
-    s[0] = 0;
-    rep(i,0,n) s[i+1] = s[i]+a[i];
-    vpl bc(m);
-    rep(i,0,m) CIN(bc[i].se, bc[i].fi);
-    S(rALL(bc));
-    int l = 0;
-    ll ans = 0;
-    for(auto p : bc) {
-        ll b = p.se;
-        ll c = p.fi;
-        int ind = l+b-1;
-        int r = lower_bound(ALL(a),c) - a.begin();
-        if(r > l) {
-            tot -= s[ind+1]-s[l];
-            tot += b*c;
-            l += b;
-        }
-        else {
-            int d = r - l;
-            if(d < 0) break;
-            tot -= s[r]-s[l];
-            tot += d*c;
-            l += d;
-        }
-        chmax(ans,tot);
-    }
-    COUT(tot);
+
   }
 };
 

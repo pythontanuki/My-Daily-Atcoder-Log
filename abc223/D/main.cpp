@@ -3,12 +3,17 @@
 using namespace atcoder;
 using namespace std;
 using mint = modint998244353;
+using C = complex<double>;
 const int mod = 998244353;
 const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
+const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -23,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>> vvc
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -50,6 +54,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
+void CIN() {}
+template <typename T, class... U> void CIN(T &t, U &...u) { cin >> t; CIN(u...); }
+void COUT() { cout << endl; }
+template <typename T, class... U, char sep = ' '> void COUT(const T &t, const U &...u) { cout << t; if (sizeof...(u)) cout << sep; COUT(u...); }
 template<class T>bool chmax(T &a, const T &b) { if (a < b) { a = b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b < a) { a = b; return 1; } return 0; }
 
@@ -96,11 +104,12 @@ ll binary_pow(ll a, ll n) {
     return x;
 }
 
-ll pascal[500][500];
+
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
@@ -109,41 +118,102 @@ void pascal_init() {
 }
 
 
-struct Solver {
-  void Solve() {
-    //トポロジカルソートという語句がすぐに頭の中に浮かぶようにしたい
-    //DAGであることを確かめるには、入字数が0になるノードが必ず存在するので、これを見つけたら優先順位付きキューに突っ込めばok
-    int n, m;
-    cin >> n >> m;
-    vvi to(n);
-    vi deg(n);
-    rep(i,0,m) {
-        int a, b;
-        cin >> a >> b;
-        --a; --b;
-        to[a].pb(b);
-        deg[b]++;
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
     }
-    priority_queue<int,vi,greater<>> q;
-    rep(i,0,n) if(!deg[i]) q.push(i);
-    vi ans;
-    while(sz(q)) {
-        int v = q.top(); q.pop();
-        ans.pb(v);
-        for(int u : to[v]) {
-            deg[u]--;
-            if(!deg[u]) q.push(u);
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
         }
     }
-    if(sz(ans) != n) cout << -1 << endl;
-    else for(auto x : ans) cout << x+1 << endl;
+    S(ALL(res));
+    return res;
+}
+
+
+C input_complex() {
+    double x, y;
+    CIN(x,y);
+    return C(x,y);
+}
+
+
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+    
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+    }
+    return res;
+}
+
+
+struct Solver {
+  void Solve() {
+    int n,m;
+    CIN(n,m);
+    vector<vector<int>> to(n);
+    vector<int> indegree(n);
+    rep(i,0,m) {
+        int a, b;
+        CIN(a,b);
+        --a; --b;
+        to[a].push_back(b);
+        indegree[b]++;
+    }
+    auto vec = topologicalSort(to,indegree,n);
+    if(sz(vec) != n) ret(-1);
+    for(auto u : vec) COUT(u+1);
   }
 };
 
 signed main(void) {
 /* This Program's Author python_tanuki */
     python_tanuki;
-    Solver solver;
-    solver.Solve();
+    int ts = 1;
+    rep(ti,0,ts) {
+      Solver solver;
+      solver.Solve();
+    }
     return 0;
 }

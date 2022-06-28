@@ -13,7 +13,7 @@ const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
-# define rsz(x) (int)(x).resize()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -132,6 +130,19 @@ vector<bool> prime_table(ll n) {
 }
 
 
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
+}
+
+
 C input_complex() {
     double x, y;
     CIN(x,y);
@@ -139,9 +150,45 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-
+    int n,m,k;
+    CIN(n,m,k);
+    if(k == 0) {
+        mint ans = mint(m).pow(n);
+        COUT(ans.val());
+        return;
+    } 
+    vector<vector<mint>> dp(n,vector<mint>(m+1));
+    srep(j,1,m) dp[0][j] = 1;
+    rep(i,1,n) {
+        vector<mint> accum = dp[i-1];
+        srep(j,1,m) accum[j] += accum[j-1];
+        srep(j,1,m) dp[i][j] = (accum[m]-accum[0]) - (accum[min(j+k-1,m)]-accum[max(0,j-k)]);
+    }
+    mint ans = 0;
+    srep(j,0,m) ans += dp[n-1][j];
+    COUT(ans.val());
   }
 };
 

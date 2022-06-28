@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -154,7 +152,6 @@ C input_complex() {
 
 vector<pair<char, int>> runLengthEncoding(string s) {
 int n = s.length();
-
 vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
@@ -171,46 +168,57 @@ vector<pair<char, int>> res;
     return res;
 }
 
-int n;
 
-vs rot(vs s) {
-    vs res(n,string(n,','));
-    rep(i,0,n)rep(j,0,n) res[j][n-1-i] = s[i][j];
-    return res;
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
 }
-
-vs translation(vs s) {
-    int li = n;
-    int lj = n;
-    rep(i,0,n) rep(j,0,n) if(s[i][j] == '#') {
-        chmin(li,i);
-        chmin(lj,j);
-    }
-    vs res(n,string(n,'.'));
-    rep(i,0,n)rep(j,0,n) {
-        if(s[i][j] == '#') res[i-li][j-lj] = '#'; 
-    }
     return res;
-}
-
-bool same(vs s, vs t) {
-    return translation(s) == translation(t);
 }
 
 
 struct Solver {
   void Solve() {
+    int n;
     CIN(n);
     vs s(n), t(n);
     rep(i,0,n) CIN(s[i]);
     rep(i,0,n) CIN(t[i]);
+    
+    auto rotate = [&](vs s) -> vs {
+        vs res(n,string(n,'.'));
+        rep(i,0,n) rep(j,0,n) res[j][n-i-1] = s[i][j];
+        return res;
+    };
 
+    auto normalize = [&](vs s) -> vs {
+        ll lr = LINF;
+        ll ud = LINF; 
+        lrep(j,0,n) lrep(i,0,n) if(s[i][j] == '#') chmin(lr,j);
+        lrep(i,0,n) lrep(j,0,n) if(s[i][j] == '#') chmin(ud,i);
+        vs res(n,string(n,'.'));
+        rep(i,0,n)rep(j,0,n) if(s[i][j] == '#') res[i-ud][j-lr] = '#';
+        return res;
+    };
+
+    auto judge = [&](vs s, vs t) -> bool {
+        return normalize(s) == normalize(t);
+    };
+    
     rep(i,0,4) {
-        if(same(s,t)) {
-            COUT("Yes");
-            return;
-        }
-        t = rot(t);
+        if(judge(s,t)) ret("Yes");
+        t = rotate(t);
     }
     COUT("No");
   }

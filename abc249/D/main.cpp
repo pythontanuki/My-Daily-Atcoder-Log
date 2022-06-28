@@ -28,12 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -185,9 +183,9 @@ struct Solver {
     ll ans = 0;
     lrep(i,0,n) {
         auto d = divisor(a[i]);
-        for(ll s : d) {
-            ll t = a[i]/s;
-            ans += mp[s] * mp[t];
+        for(auto x : d) {
+            ll y = a[i] / x;
+            ans += mp[x] * mp[y];
         }
     }
     COUT(ans);
