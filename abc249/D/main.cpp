@@ -11,6 +11,8 @@ const double PI = acos(-1);
 const int MX = 200005;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
+const int di[8] = {1,1,1,0,0,-1,-1,-1};
+const int dj[8] = {1,0,-1,1,-1,1,0,-1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
 # define rsz(x,n) x.resize(n)
@@ -151,9 +153,8 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-int n = s.length();
-
-vector<pair<char, int>> res;
+    int n = s.length();
+    vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
     rep(i, 1, n) {
@@ -170,11 +171,30 @@ vector<pair<char, int>> res;
 }
 
 
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
     ll n;
     CIN(n);
-    vl a(n);
+    vector<ll> a(n);
     map<ll,ll> mp;
     lrep(i,0,n) {
         CIN(a[i]);
@@ -182,13 +202,13 @@ struct Solver {
     }
     ll ans = 0;
     lrep(i,0,n) {
-        auto d = divisor(a[i]);
-        for(auto x : d) {
-            ll y = a[i] / x;
-            ans += mp[x] * mp[y];
+        ll v = a[i];
+        for(ll j = 1; j*j <= v; j++) if(v%j == 0) {
+            if(j == v/j) ans += (ll)mp[j] * mp[v/j];
+            else ans += (ll)2 * mp[j] * mp[v/j];
         }
     }
-    COUT(ans);
+    cout << ans << endl;
   }
 };
 

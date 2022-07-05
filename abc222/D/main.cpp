@@ -190,7 +190,30 @@ vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int n
 
 struct Solver {
   void Solve() {
-
+      const int M = 3001;
+      int n;
+      CIN(n);
+      vi a(n), b(n);
+      rep(i,0,n) CIN(a[i]);
+      rep(i,0,n) CIN(b[i]);
+      vector<mint> dp(M);
+      dp[0] = 1;
+      rep(i,0,n) {
+          vector<mint> p(M);
+          swap(dp,p);
+          vector<mint> s(M+10);
+          rep(j,0,M) s[j+1] = s[j] + p[j];
+          rep(j,0,M) {
+              if(j < a[i] || j > b[i]) continue;
+            //   rep(k,0,M) {
+            //       if(k <= j) dp[j] += p[k];
+            //   }
+            dp[j] += s[j+1];
+          }
+      }
+      mint ans = 0;
+      rep(i,0,M) ans += dp[i];
+      cout << ans.val() << endl;
   }
 };
 

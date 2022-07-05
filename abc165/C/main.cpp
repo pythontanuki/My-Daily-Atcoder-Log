@@ -11,6 +11,8 @@ const double PI = acos(-1);
 const int MX = 200005;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
+const int di[8] = {1,1,1,0,0,-1,-1,-1};
+const int dj[8] = {1,0,-1,1,-1,1,0,-1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
 # define rsz(x,n) x.resize(n)
@@ -28,12 +30,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -133,9 +133,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -147,9 +153,8 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-int n = s.length();
-
-vector<pair<char, int>> res;
+    int n = s.length();
+    vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
     rep(i, 1, n) {
@@ -165,19 +170,37 @@ vector<pair<char, int>> res;
     return res;
 }
 
-ll ans,n,m,q;
-vl a,b,c,d;
 
-void dfs(vi A) {
-    if(sz(A) == n+1){
-        ll now = 0;
-        rep(i,0,q) {
-            if(A[b[i]] - A[a[i]] == c[i]) now += d[i];
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
         }
-        chmax(ans,now);
+        res.push_back(v);
+}
+    return res;
+}
+
+ll n,m,q,ans;
+vector<ll>a,b,c,d;
+
+void dfs(vector<ll> A) {
+    if(sz(A) == n+1) {
+        ll score = 0;
+        rep(i,0,q) if(A[b[i]] - A[a[i]] == c[i]) score += d[i];
+        chmax(ans,score);
         return;
     }
-    A.pb(A.back());
+
+    A.push_back(A.back());
     while(A.back() <= m) {
         dfs(A);
         A.back()++;
@@ -188,12 +211,14 @@ void dfs(vi A) {
 struct Solver {
   void Solve() {
     CIN(n,m,q);
-    a.resize(q);
-    b.resize(q);
-    c.resize(q);
-    d.resize(q);
+    rsz(a,q);
+    rsz(b,q);
+    rsz(c,q);
+    rsz(d,q);
     rep(i,0,q) CIN(a[i],b[i],c[i],d[i]);
-    dfs(vi(1,1));
+    vector<ll> A;
+    A.push_back(1);
+    dfs(A); 
     COUT(ans);
   }
 };

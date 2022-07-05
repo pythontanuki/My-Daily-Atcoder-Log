@@ -11,6 +11,8 @@ const double PI = acos(-1);
 const int MX = 200005;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
+const int di[8] = {1,1,1,0,0,-1,-1,-1};
+const int dj[8] = {1,0,-1,1,-1,1,0,-1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
 # define rsz(x,n) x.resize(n)
@@ -28,12 +30,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
 # define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -52,7 +52,6 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define dlrep(i, a, b) for(ll i = a; i >= b; --i)
 # define ALL(obj) (obj).begin(), (obj).end()
 # define rALL(obj) (obj).rbegin(), (obj).rend()
-# define python_tanuki ios::sync_with_stdio(false); cin.tie(nullptr);
 # define _GLIBCXX_DEBUG
 # define Pll pair<ll, ll>
 # define P pair<int,int>
@@ -133,9 +132,15 @@ vector<bool> prime_table(ll n) {
 
 
 vector<ll> divisor(ll n) {
-    vector<ll> d;
-    for(ll i = 1; i * i <= n; ++i) if(n%i == 0) d.pb(i), d.pb(n/i);
-    return d;
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -147,9 +152,8 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-int n = s.length();
-
-vector<pair<char, int>> res;
+    int n = s.length();
+    vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
     rep(i, 1, n) {
@@ -166,50 +170,84 @@ vector<pair<char, int>> res;
 }
 
 
-struct Solver {
-  void Solve() {
-    int n, m;
-    CIN(n, m);
-    vvi to(m);
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+
+template<class T>
+vector<long long> dijkstra(vector<vector<pair<int, T>>>& graph, int start)
+{
+    int n = graph.size();
+    vector<long long> res(n, 2e18);
+    res[start] = 0;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> que;
+    que.push({0, start});
+    while(!que.empty())
+    {
+        auto[c, v] = que.top();
+        que.pop();
+        if(res[v] < c) continue;
+        for(auto[nxt, cost]: graph[v])
+        {
+            auto x = max(c, cost);
+            if(x < res[nxt])
+            {
+            res[nxt] = x;
+            que.push({x, nxt});
+            }
+        }
+    }
+    return res;
+}
+
+int main() {
+    ios::sync_with_stdio(false); 
+    cin.tie(nullptr);
+
+    int n,m;
+    CIN(n,m);
+    vector<vector<int>> to(n);
     rep(i,0,m) {
-        int a, b;
+        int a,b;
         CIN(a,b);
-        --a; --b;
+        --a;--b;
         to[a].pb(b);
         to[b].pb(a);
     }
-    int q;
-    CIN(q);
-    rep(qi,0,q) {
-        int ans = 0;
+    int tt;
+    CIN(tt);
+    while(tt--) {
         int x, k;
-        CIN(x, k);
+        CIN(x,k);
         --x;
-        queue<int> q;
-        vi dist(n,INF);
-        auto push = [&](int v, int d, int &cnt) {
-            if(dist[v] != INF) return;
-            dist[v] = d;
-            q.push(v);
-            if(d <= k) cnt += v+1;
+        vector<int> VS;
+        auto dfs = [&](auto f, int v, int depth) -> void {
+            VS.pb(v);
+            if(depth >= k) return;
+            for(int u : to[v]) {
+                f(f,u,depth+1);
+            }
         };
-        push(x,0,ans);
-        while(sz(q)) {
-            int v = q.front(); q.pop();
-            if(sz(to[v])) for(auto nx : to[v]) push(nx,dist[v]+1,ans);
-        }
+        dfs(dfs,x,0);
+        S(ALL(VS));
+        VS.erase(unique(VS.be(), VS.en()),VS.en());
+        int ans = 0;
+        for(auto t : VS) ans += t+1;
         COUT(ans);
     }
-  }
-};
-
-signed main(void) {
-/* This Program's Author python_tanuki */
-    python_tanuki;
-    int ts = 1;
-    rep(ti,0,ts) {
-      Solver solver;
-      solver.Solve();
-    }
-    return 0;
 }

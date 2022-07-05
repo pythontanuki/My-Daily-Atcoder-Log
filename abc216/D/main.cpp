@@ -188,11 +188,43 @@ vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int n
 }
 
 
+
 struct Solver {
   void Solve() {
-    int n,m;
+    int n,m,n2;
     CIN(n,m);
-    
+    n2 = n*2;
+    vector<vector<int>> tutu(m);//それぞれの筒に何のボールが入っているか
+    vector<vector<int>> ball(n);//それぞれのボールがどの筒に入っているか
+    rep(i,0,m) {
+        int k;
+        CIN(k);
+        rsz(tutu[i],k);
+        rep(j,0,k) {
+            CIN(tutu[i][j]);
+            --tutu[i][j];
+            ball[tutu[i][j]].push_back(i);
+        }
+    }
+    queue<int> q;
+    vector<int> cnt(n);
+    rep(i,0,m) cnt[tutu[i].back()]++;
+    rep(i,0,n) if(cnt[i] == 2) q.push(i);
+    if(!sz(q)) ret("No");
+    int counter = 0;
+    while(sz(q)) {
+        int color = q.front(); q.pop();
+        counter++;
+        for(auto tnum : ball[color]) {
+            tutu[tnum].pop_back();
+            if(sz(tutu[tnum])) {
+                cnt[tutu[tnum].back()]++;
+                if(cnt[tutu[tnum].back()] == 2) q.push(tutu[tnum].back());
+            }
+        }
+    }
+    if(counter == n) cout << "Yes" << endl; 
+    else cout << "No" << endl;
   }
 };
 

@@ -9,8 +9,11 @@ const long long LINF = 1001002003004005006;
 const int INF = 1001001001;
 const double PI = acos(-1);
 const int MX = 200005;
+const int dx[4] = {-1,0,1,0};
+const int dy[4] = {0,-1,0,1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
+# define rsz(x,n) x.resize(n)
 # define yes {puts("Yes"); return;}
 # define no {puts("No"); return;}
 # define dame {puts("-1"); return;}
@@ -25,11 +28,10 @@ int getint(){int x; scanf("%d",&x);return x;}
 # define vl vector<long long>
 # define vs vector<string>
 # define vb vector<bool>
-# define vc vector<char>
+# define vm vector<mint>
 # define vvi vector<vector<int>>
 # define vvl vector<vector<long long>>
 # define vvb vector<vector<bool>>
-# define vvc vector<vector<char>>
 # define vpi vector<pair<int, int>>
 # define vpl vector<pair<ll, ll>>
 # define vps vector<pair<string, string>>
@@ -103,16 +105,41 @@ ll binary_pow(ll a, ll n) {
 }
 
 
-ll pascal[500][500];
+ll pascal[4500][4500];
 
 void pascal_init() {
     pascal[0][0] = 1;
-    rep(i, 0, 500) {
+    rep(i, 0, 4400) {
         rep(j, 0, i+1) {
             pascal[i+1][j] += pascal[i][j];
             pascal[i+1][j+1] += pascal[i][j];
         }
     }
+}
+
+
+vector<bool> prime_table(ll n) {
+    vector<bool> prime(n+1,true);
+    prime[0] = false;
+    prime[1] = false;
+    for(ll i = 2; i*i <= n; i++) {
+        if(!prime[i]) continue;
+        for(int j = i*i; j <= n; j += i) prime[j] = false;
+    }
+    return prime;
+}
+
+
+vector<ll> divisor(ll n) {
+    vl res;
+    for(ll i = 1; i*i <= n; ++i) {
+        if(n%i == 0) {
+            res.pb(i);
+            if(i*i != n) res.pb(n/i);
+        }
+    }
+    S(ALL(res));
+    return res;
 }
 
 
@@ -123,22 +150,66 @@ C input_complex() {
 }
 
 
+vector<pair<char, int>> runLengthEncoding(string s) {
+int n = s.length();
+vector<pair<char, int>> res;
+    char pre = s[0];
+    int cnt = 1;
+    rep(i, 1, n) {
+        if (pre != s[i]) {
+            res.push_back({ pre, cnt });
+            pre = s[i];
+            cnt = 1;
+        }
+        else cnt++;
+    }
+
+    res.push_back({ pre, cnt });
+    return res;
+}
+
+
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+int dp[330][330][330];
+
 struct Solver {
   void Solve() {
-    //解説AC
-    //dpであることにはすぐに気づくが、実装ができなかった EDPCをやり込んだ方がよさそう
-    //dp[i][j][k] : i個目まで買うかどうかは決定していて、たい焼きの合計がj個、たい焼きの合計がk個になるように取った時の弁当の最小値
     int n;
     CIN(n);
     int x, y;
     CIN(x,y);
-    vector<vector<vector<int>>> dp(n+1, vector<vector<int>>(x+1, vector<int>(y+1,INF)));
     vi a(n), b(n);
-    rep(i,0,n) CIN(a[i],b[i]);
+    rep(i,0,n) CIN(a[i], b[i]);
+    //dp
+    //i個目まで見た時、たこ焼きをj個、たい焼きをk個買う時の弁当の個数の最小値
+    //i個目の弁当を使わない場合の遷移 dp[i+1][j][k] += dp[i][j][k]
+    //i個目の弁当を使う場合の遷移 dp[i+1][min(x,j+a[i])][min(y,k+b[i])] += dp[i][j][k]
+    rep(i,0,330)rep(j,0,330)rep(k,0,330) dp[i][j][k] = INF;
     dp[0][0][0] = 0;
-    rep(i,0,n) srep(j,0,x) srep(k,0,y) {
-        chmin(dp[i+1][j][k],dp[i][j][k]);
-        chmin(dp[i+1][min(x,j+a[i])][min(y,k+b[i])],dp[i][j][k]+1);
+    srep(i,0,n) {
+        srep(j,0,310) {
+            srep(k,0,310) {
+                chmin(dp[i+1][j][k],dp[i][j][k]);
+                chmin(dp[i+1][min(x,j+a[i])][min(y,k+b[i])], dp[i][j][k]+1);
+            }
+        }
     }
     if(dp[n][x][y] == INF) COUT(-1);
     else COUT(dp[n][x][y]);

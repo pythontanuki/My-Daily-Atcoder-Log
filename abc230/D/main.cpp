@@ -151,8 +151,8 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-int n = s.length();
-vector<pair<char, int>> res;
+    int n = s.length();
+    vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
     rep(i, 1, n) {

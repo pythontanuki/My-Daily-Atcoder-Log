@@ -11,6 +11,8 @@ const double PI = acos(-1);
 const int MX = 200005;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
+const int di[8] = {1,1,1,0,0,-1,-1,-1};
+const int dj[8] = {1,0,-1,1,-1,1,0,-1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
 # define rsz(x,n) x.resize(n)
@@ -151,9 +153,8 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-int n = s.length();
-
-vector<pair<char, int>> res;
+    int n = s.length();
+    vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
     rep(i, 1, n) {
@@ -170,23 +171,43 @@ vector<pair<char, int>> res;
 }
 
 
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
-    ll n;
+    //標準化することというのは平方数で破り続けることと同じ
+    int n;
     CIN(n);
     vector<int> cnt(n+1);
     slrep(i,1,n) {
-        ll val = i;
+        ll v = i;
         ll d = 2;
-        while(d*d <= val) {
-            if(val % (d*d) == 0) val /= (d*d);
+        while(d*d <= n) {
+            if(v % (d*d) == 0) v /= d*d;
             else d++;
         }
-        cnt[val]++;
-    }
+        cnt[v]++;
+    }  
     ll ans = 0;
-    for(auto x : cnt) ans += x*x;
-    COUT(ans);
+    for(auto c : cnt) ans += c*c;
+    cout << ans << endl;
   }
 };
 

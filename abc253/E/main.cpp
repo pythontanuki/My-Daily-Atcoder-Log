@@ -11,6 +11,8 @@ const double PI = acos(-1);
 const int MX = 200005;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,-1,0,1};
+const int di[8] = {1,1,1,0,0,-1,-1,-1};
+const int dj[8] = {1,0,-1,1,-1,1,0,-1};
 int getint(){int x; scanf("%d",&x);return x;}
 # define sz(x) (int)(x).size()
 # define rsz(x,n) x.resize(n)
@@ -96,9 +98,9 @@ vector<pair<ll,int>> factorize(ll n) {
     return res;
 }
 
-ll binary_pow(ll a, ll n) {
+mint binary_pow(ll a, ll n) {
     if(n == 0) return 1;
-    ll x = binary_pow(a,n/2);
+    mint x = binary_pow(a,n/2);
     x *= x;
     if(n%2) x *= a;
     return x;
@@ -151,9 +153,8 @@ C input_complex() {
 
 
 vector<pair<char, int>> runLengthEncoding(string s) {
-int n = s.length();
-
-vector<pair<char, int>> res;
+    int n = s.length();
+    vector<pair<char, int>> res;
     char pre = s[0];
     int cnt = 1;
     rep(i, 1, n) {
@@ -170,25 +171,54 @@ vector<pair<char, int>> res;
 }
 
 
+vector<int> topologicalSort(vector<vector<int>> &G, vector<int> &inDegree, int nodenum) {
+    vector<int> res; //答え用の配列
+    priority_queue<int,vector<int>, greater<>> q; //入次数が0の頂点の処理待ち //辞書順が最小のものを返す
+
+    rep(i,0,nodenum) if(inDegree[i] == 0) q.push(i);
+
+    while(sz(q)) {
+        int v = q.top(); q.pop();
+        rep(i,0,sz(G[v])) {
+            int u = G[v][i];
+            --inDegree[u];
+            if(inDegree[u] == 0) q.push(u);
+        }
+        res.push_back(v);
+}
+    return res;
+}
+
+
 struct Solver {
   void Solve() {
     int n,m,k;
     CIN(n,m,k);
     if(k == 0) {
-        mint ans = mint(m).pow(n);
-        COUT(ans.val());
+        mint ans = 0;
+        ans = binary_pow(m,n);
+        cout << ans.val() << endl;
         return;
-    } 
-    vector<vector<mint>> dp(n,vector<mint>(m+1));
+    }
+    //dp 
+    //i番目まで見たときに最後がjとなるような場合の数
+    //dp[i][j] += dp[i-1][t] (1 <= t <= j-k-1 && j-k+1 <= t <= m)
+    //累積和dpで高速化できる
+    vector<vector<mint>> dp(n+1,vector<mint>(m+1));
     srep(j,1,m) dp[0][j] = 1;
     rep(i,1,n) {
         vector<mint> accum = dp[i-1];
         srep(j,1,m) accum[j] += accum[j-1];
-        srep(j,1,m) dp[i][j] = (accum[m]-accum[0]) - (accum[min(j+k-1,m)]-accum[max(0,j-k)]);
+        srep(j,1,m) {
+            // srep(t,1,m) {
+            //     if(abs(j-t) >= k) dp[i][j] += dp[i-1][t];
+            // }
+            dp[i][j] += (accum[m] - accum[0]) - (accum[min(j+k-1,m)] - accum[max(0,j-k)]);
+        }
     }
     mint ans = 0;
-    srep(j,0,m) ans += dp[n-1][j];
-    COUT(ans.val());
+    srep(i,1,m) ans += dp[n-1][i];
+    cout << ans.val() << endl;
   }
 };
 
